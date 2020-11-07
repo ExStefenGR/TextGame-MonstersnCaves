@@ -1,0 +1,2 @@
+C:\Users\Poggers\Desktop\University Work\Games Programming\TextGame-MonstersnCaves\Project1\Debug\TextGame-MonstersnCaves.exe
+C:\Users\Poggers\Desktop\University Work\Games Programming\TextGame-MonstersnCaves\Project1\Debug\TextGame-MonstersnCaves.pdb
