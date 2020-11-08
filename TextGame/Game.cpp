@@ -61,26 +61,27 @@ void SwitchState()
 			{
 				mountain();
 			}
-			else if (_locator == 1)
-			{
-				crossroads();
-			}
 			else if (_locator == 2)
 			{
 				river2();
 			}
-			else if (_locator == 3)
+		
+			//River2 is a combat fight
+
+			else if (_locator == 4)
 			{
 				crossroads();
 			}
-			else if (_locator == 4)//River2 is fight so if the player wins they go to Hideout
+			else if (_locator == 5)
 			{
-				crossroads();
+				std::cout << std::endl << "Not quite right, try again" << std::endl;
+				SwitchState();
 			}
 			else if (_locator == 6)
 			{
 				crossroads();
 			}
+			break;
 		case 2:
 			if (_locator == 0)
 			{
@@ -90,13 +91,39 @@ void SwitchState()
 			{
 				ruins();
 			}
-			else if (_locator == 5)//????Why??
+			else if (_locator == 5)
 			{
 				crossroads();
+			}
+			break;
+		case 3:
+			if (_locator == 0)
+			{
+				river1();
+			}
+			else if (_locator == 1)
+			{
+				std::cout << std::endl << "There is only One direction here traveller... Try again?" << std::endl;
+				SwitchState();
+			}
+			else if (_locator == 2)
+			{
+				town();
+			}
+			else if (_locator == 4)
+			{
+				std::cout << std::endl << "There is only One direction here traveller... Try again?" << std::endl;
+				SwitchState();
+			}
+			else if (_locator == 5)
+			{
+				std::cout << std::endl << "There is only two directions here traveller... Try again?" << std::endl;
+				SwitchState();
 			}
 
 		default:
 			std::cout << std::endl << "Please enter a valid number" << std::endl;
+			Done = false;
 			break;
 		}
 	}
@@ -105,13 +132,53 @@ void SwitchState()
 //self-explanatory
 void gameover()
 {
+	system("clear");
+	std::cin.clear();
+	Done = {};
 
+	std::cout << std::endl << "        Game over        " << std::endl << std::endl << std::endl;
+	system("pause");
+
+	std::cout << std::endl << "You did well, " << _Name << "." << std::endl
+		<< "Final stats" << std::endl
+		<< "Highest Damage dealt " << _Damage << std::endl
+		<< "Progression score " << _Score << std::endl << std::endl
+		<< "Play again?" << std::endl
+		<< "1. Play Again" << std::endl
+		<< "2. Exit" << std::endl;
+
+	while (!Done)
+	{
+		if (!(std::cin >> _decision))
+		{
+			std::cin.clear();
+			while (std::cin.get() != '\n');
+			std::cout << "Invalid Input!" << std::endl << std::endl;
+			continue;
+		}
+
+		switch (_decision)
+		{
+		case 1:
+
+			main();
+			Done = true;
+			break;
+		case 2:
+			system("exit");
+
+			Done = true;
+			break;
+		default:
+			std::cout << std::endl << "Please decide..." << std::endl;
+		}
+	}
 }
 
 //start
 int main()
 {
-
+	system("clear");
 
 	std::cout << "Greetings young wanderer.." << std::endl << "What is your name?" << std::endl;
 	std::cin >> _Name;
