@@ -1,6 +1,24 @@
 #include <iostream>
 #include <string>
 
+
+//enum for places that will replace numbers
+enum Location
+{
+	START_POINT,
+	MOUNTAIN,
+	CROSSROADS,
+	RIVER2,
+	HIDEOUT,
+	RUINS,
+	TOWN,
+	CAMP,
+	RIVER1,
+	MONSTER_CAVE,
+	WATERFALL,
+};
+
+
 //You can refer other classes here
 void crossroads();
 void startpoint();
@@ -11,6 +29,7 @@ void river2(); //fight
 void ruins();
 void town();
 void monstercave();
+void hideout();
 void waterfall();
 void gameover();
 
@@ -18,27 +37,32 @@ void SwitchState();
 
 //User's stats
 std::string _Name;
-int _Damage = 1;
-int _HP = 10;
+int DMG = 1;
+int HP = 10;
 
 //score Variable
 int _Score;
 
 //Character Items
-bool _Sword = {};
-bool _Lighter = {};
-bool _Map = {};
-bool _Scroll = {};
+struct Player {
+	bool Sword = {};
+	bool Lighter = {};
+	bool Map = {};
+	bool Scroll = {};
 
-bool _Torch = true;
+	bool Torch = true;
+};
+
+Player Inventory;
 
 //Character Stats
 int GearWeight = 1;
 
 //Situational variables
-int _locator; //For actual locations (Mountain/River...)
+int locator; //For actual locations (Mountain/River...)
 int _direction; //For directions within locations (NPC/People)
 int _decision;
+bool trigger;
 bool Done{}; //This is so the Switch gets repeated until the Player uses the correct variable value
 
 
@@ -57,69 +81,80 @@ void SwitchState()
 		switch (_decision)
 		{
 		case 1:
-			if (_locator == 0)
+			if (locator == START_POINT)
 			{
 				mountain();
 			}
-			else if (_locator == 2)
+			else if (locator == CROSSROADS)
 			{
 				river2();
 			}
 		
 			//River2 is a combat fight
 
-			else if (_locator == 4)
+			else if (locator == HIDEOUT)
 			{
 				crossroads();
 			}
-			else if (_locator == 5)
+			else if (locator == RUINS)
 			{
 				std::cout << std::endl << "Not quite right, try again" << std::endl;
 				SwitchState();
 			}
-			else if (_locator == 6)
+			else if (locator == TOWN)
 			{
 				crossroads();
 			}
 			break;
 		case 2:
-			if (_locator == 0)
+			if (locator == START_POINT)
 			{
 				camp();
 			}
-			else if (_locator == 2)
+			else if (locator == CROSSROADS)
 			{
 				ruins();
 			}
-			else if (_locator == 5)
+			else if (locator == RUINS)
 			{
 				crossroads();
 			}
 			break;
 		case 3:
-			if (_locator == 0)
+			if (locator == START_POINT)
 			{
 				river1();
 			}
-			else if (_locator == 1)
+			else if (locator == MOUNTAIN)
 			{
 				std::cout << std::endl << "There is only One direction here traveller... Try again?" << std::endl;
 				SwitchState();
 			}
-			else if (_locator == 2)
+			else if (locator == CROSSROADS)
 			{
 				town();
 			}
-			else if (_locator == 4)
+			else if (locator == HIDEOUT)
 			{
 				std::cout << std::endl << "There is only One direction here traveller... Try again?" << std::endl;
 				SwitchState();
 			}
-			else if (_locator == 5)
+			else if (locator == RUINS)
 			{
 				std::cout << std::endl << "There is only two directions here traveller... Try again?" << std::endl;
 				SwitchState();
 			}
+		case 4:
+			if (locator == CROSSROADS && trigger == true)
+			{
+				hideout();
+			}
+			else if (locator == CROSSROADS && trigger == false)
+			{
+				std::cout << std::endl << "You see a building but you will have to go through the river first.." << std::endl;
+				SwitchState();
+			}
+			break;
 
 		default:
 			std::cout << std::endl << "Please enter a valid number" << std::endl;
@@ -129,7 +164,26 @@ void SwitchState()
 	}
 }
 
-//self-explanatory
+
+
+//start
+int main()
+{
+	system("clear");
+
+	std::cout << "Greetings young wanderer.." << std::endl << "What is your name?" << std::endl;
+	std::cin >> _Name;
+	std::cout << "Shall we begin with your adventure.. " << _Name << " ?" << std::endl;
+	system("pause");
+	system("clear");
+	std::cin.clear();
+	std::cout << "Good luck and bear in mind your adventure has many co-existing and alternate realities.. " << _Name << std::endl;
+	system("pause");
+	system("clear");
+	startpoint();
+}
+
+//self explanatory
 void gameover()
 {
 	system("clear");
@@ -140,8 +194,9 @@ void gameover()
 	system("pause");
 
 	std::cout << std::endl << "You did well, " << _Name << "." << std::endl
+
 		<< "Final stats" << std::endl
-		<< "Highest Damage dealt " << _Damage << std::endl
+		<< "Highest Damage dealt " << DMG << std::endl
 		<< "Progression score " << _Score << std::endl << std::endl
 		<< "Play again?" << std::endl
 		<< "1. Play Again" << std::endl
@@ -175,27 +230,10 @@ void gameover()
 	}
 }
 
-//start
-int main()
-{
-	system("clear");
-
-	std::cout << "Greetings young wanderer.." << std::endl << "What is your name?" << std::endl;
-	std::cin >> _Name;
-	std::cout << "Shall we begin with your adventure.. " << _Name << " ?" << std::endl;
-	system("pause");
-	system("clear");
-	std::cin.clear();
-	std::cout << "Good luck and bear in mind your adventure has many co-existing and alternate realities.. " << _Name << std::endl;
-	system("pause");
-	system("clear");
-	startpoint();
-}
-
-//0
+//START_POINT
 void startpoint()
 {
-	_locator = 0;
+	locator = START_POINT;
 
 	std::cout << "You awake and find yourself in a large field with a few pathroads.." << std::endl
 		<< "What you have on you is just a torch but nothing to light it up yet.." << std::endl
@@ -207,11 +245,11 @@ void startpoint()
 	SwitchState();
 }
 
-//1
+//MOUNTAIN
 void mountain()
 {
 	system("clear");
-	_locator = 1;
+	locator = MOUNTAIN;
 
 	std::cout << "You have finally arrived on the side of the mountain" << std::endl
 		<< "You notice a unique object stuck in the rocks that is out of the ordinary" << std::endl
@@ -238,7 +276,7 @@ void mountain()
 			std::cout << std::endl << "o==={==>====>==>" << std::endl
 				<< "You have found a sword!" << std::endl;
 
-			_Sword = true;
+			Inventory.Sword = true;
 			system("pause");
 			Done = true;
 
@@ -263,72 +301,74 @@ void mountain()
 		Done = {};
 
 	system("clear");
-	if (_Sword == true)
+	if (Inventory.Sword == true)
 	{
-		_Damage += 5;
-		std::cout << std::endl << "Your damage has increased to " << _Damage << std::endl;
+		DMG += 5;
+		std::cout << std::endl << "Your damage has increased to " << DMG << std::endl;
 		system("pause");
 	}
+
 	std::cout << std::endl << "You have heard an echo in the distance.." << std::endl
 			  << "You follow the road the echo came from regardless of the consequences" << std::endl;
+
 	system("pause");
 	system("clear");
 	std::cin.clear();
 	crossroads();
 }
 
-//7
+//CAMP
 void camp()
 {
-	_locator = 7;
+	locator = CAMP;
 	std::cout << std::endl << "camp" << std::endl;
 	SwitchState();
 }
 
-//8
+//RIVER1
 void river1()
 {
-	_locator = 8;
+	locator = RIVER1;
 	std::cout << std::endl << "river" << std::endl;
 	SwitchState();
 }
 
-//2
+//CROSSROADS
 void crossroads()
 {
-	_locator = 2;
-	std::cout << std::endl << "Crossroads" << std::endl;
+	locator = CROSSROADS;
+	std::cout << std::endl << "You have arrived in a field " << std::endl;
 	SwitchState();
 }
 
-//3
+//RIVER2
 void river2()
 {
-	_locator = 3;
+	locator = RIVER2;
 	std::cout << std::endl << "River2" << std::endl;
 	SwitchState();
 }
 
-//4
+//HIDEOUT
 void hideout()
 {
-	_locator = 4;
+	locator = HIDEOUT;
 	std::cout << std::endl << "Mountain" << std::endl;
 	SwitchState();
 }
 
-//5
+//RUINS
 void ruins()
 {
-	_locator = 5;
+	locator = RUINS;
 	std::cout << std::endl << "Ruins" << std::endl;
 	SwitchState();
 }
 
-//6
+//TOWN
 void town()
 {
-	_locator = 6;
+	locator = TOWN;
 	std::cout << std::endl << "town" << std::endl;
 	SwitchState();
 }
@@ -336,7 +376,7 @@ void town()
 //9
 void monstercave()
 {
-	_locator = 9;
+	locator = MONSTER_CAVE;
 	std::cout << std::endl << "Monster Cave" << std::endl;
 	SwitchState();
 }
@@ -344,7 +384,7 @@ void monstercave()
 //10
 void waterfall()
 {
-	_locator = 10;
+	locator = WATERFALL;
 	std::cout << std::endl << "Waterfall" << std::endl;
 	SwitchState();
 }
