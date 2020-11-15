@@ -68,9 +68,39 @@ Items Inventory;
 int locator; //For actual locations (Mountain/River...)
 int _direction; //For directions within locations (NPC/People)
 int _decision;
-bool trigger; //Used for various situations
+bool trigger1;
+bool trigger2;//Used for various situations
 bool Done{}; //This is so the Switch gets repeated until the Player uses the correct variable value
 
+void stats(Items* Inventory)
+{
+	std::cout << std::endl << "Your Health is at " << MainCharacter.HP << " HP" << std::endl
+			  << "Your Damage is at " << MainCharacter.DMG << " HP" << std::endl
+			  << "Items you have acquired so far" << std::endl;
+	if (Inventory->Sword == true)
+	{
+
+		std::cout << std::endl <<"Sword"<< std::endl;
+
+	}
+	else if (Inventory->Map == true)
+	{
+		std::cout << std::endl << "Map" << std::endl;
+	}
+	else if (Inventory->Lighter == true)
+	{
+		std::cout << std::endl << "Lighter" << std::endl;
+	}
+	else if (Inventory->Scroll == true)
+	{
+		std::cout << std::endl << "Scroll" << std::endl;
+	}
+	else if (Inventory->Scroll == false && Inventory->Lighter == false && Inventory->Map == false && Inventory->Sword == false)
+	{
+		std::cout << std::endl << "None" << std::endl;
+	}
+	std::cout << std::endl;
+}
 
 void SwitchState()
 {
@@ -91,9 +121,13 @@ void SwitchState()
 			{
 				mountain();
 			}
-			else if (locator == CROSSROADS)
+			else if (locator == CROSSROADS && trigger1 == false)
 			{
 				river2();
+			}
+			else if (locator == CROSSROADS && trigger1 == true)
+			{
+				std::cout << std::endl << "It appears that there is no reason to go to the river again" << std::endl;
 			}
 		
 			//River2 is a combat fight
@@ -151,17 +185,20 @@ void SwitchState()
 				SwitchState();
 			}
 		case 4:
-			if (locator == CROSSROADS && trigger == true)
+			if (locator == CROSSROADS && trigger1 == true)
 			{
 				hideout();
 			}
-			else if (locator == CROSSROADS && trigger == false)
+			else if (locator == CROSSROADS && trigger1 == false)
 			{
 				std::cout << std::endl << "You see a building but you will have to go through the river first.." << std::endl;
 				system("pause");
 				system("cls");
 				crossroads();
 			}
+			break;
+		case 5:
+			stats(&Inventory);
 			break;
 
 		default:
@@ -177,9 +214,16 @@ void SwitchState()
 //start
 int main()
 {
+	//Resetting variables in case player wants to play again after game-over
+	Inventory.Sword = false;
+	Inventory.Scroll = false;
+	Inventory.Map = false;
+	Inventory.Torch = false;
+
 	MainCharacter.DMG = 1;
 	MainCharacter.HP = 10;
 	MainCharacter.Score = 0;
+
 	system("cls");
 
 	std::cout << "Greetings young wanderer.." << std::endl << "What is your name?" << std::endl;
@@ -194,7 +238,7 @@ int main()
 	startpoint();
 }
 
-//self explanatory
+//GameOver sequence
 void gameover()
 {
 	system("cls");
@@ -253,7 +297,8 @@ void startpoint()
 		<< "Where would you like to go?" << std::endl
 		<< "1. Towards mountain" << std::endl
 		<< "2. Towards camp" << std::endl
-		<< "3. Towards river" << std::endl << std::endl;
+		<< "3. Towards river" << std::endl
+		<< "5. Check your stats"<< std::endl << std::endl;
 	SwitchState();
 }
 
@@ -267,7 +312,8 @@ void mountain()
 		<< "You notice a unique object stuck in the rocks that is out of the ordinary" << std::endl
 		<< "Pick up?" << std::endl
 		<< "1. Yes" << std::endl
-		<< "2. No" << std::endl << std::endl;
+		<< "2. No" << std::endl << std::endl
+		<< "5. Check your stats" << std::endl << std::endl;;
 
 	std::cin.clear();
 
@@ -299,6 +345,9 @@ void mountain()
 			
 			system("pause");
 			Done = true;
+			break;
+		case 5:
+			stats(&Inventory);
 			break;
 		default:
 			std::cout << std::endl << "Please decide with" << std::endl
@@ -349,7 +398,22 @@ void river1()
 void crossroads()
 {
 	locator = CROSSROADS;
-	std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl;
+	if (trigger1 == false)
+	{
+		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
+			<< std::endl << "1. Towards River"
+			<< std::endl << "2. Towards Ruins"
+			<< std::endl << "3. Towards Town"
+			<< std::endl << "5. Check stats" << std::endl;
+	}
+	else if (trigger1 == true)
+	{
+		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
+			<< std::endl << "2. Towards Ruins"
+			<< std::endl << "3. Towards Town"
+			<< std::endl << "4. Towards Hideout"
+			<< std::endl << "5. Check stats" << std::endl;
+	}
 
 	SwitchState();
 }
@@ -366,7 +430,16 @@ void river2()
 void hideout()
 {
 	locator = HIDEOUT;
-	std::cout << std::endl << "Mountain" << std::endl;
+	system("cls");
+
+	if (Inventory.Scroll == false)
+	{
+		std::cout << std::endl << "You're inside the thief's hideout, the area is really dusty" << std::endl;
+	}
+	else if (Inventory.Scroll == true)
+	{
+		std::cout << std::endl << "You're inside the thief's hideout" << std::endl;
+	}
 	SwitchState();
 }
 
@@ -409,40 +482,22 @@ void fight()
 	Thief.HP = 15;
 
 	system("cls");
-	if (locator == FIGHT1)
+	if (trigger1 == false)
 	{
-		
-		while (Thief.HP > 0 && MainCharacter.HP > 0) //Winning condition, losing condition within loop
+		if (locator == FIGHT1)
 		{
-			system("cls");
 
-
-			std::cout << std::endl << "You're being ambushed by a thief!" << std::endl << std::endl
-				<< "The thief has " << Thief.HP << " HP" << std::endl << std::endl
-				<< "You have " << MainCharacter.HP << " HP"<< std::endl << std::endl
-				<< "What do you do?" << std::endl
-				<< "1. Attack" << std::endl
-				<< "2. Use Item" << std::endl;
-			if (!(std::cin >> _decision))
-			{
-				std::cin.clear();
-				while (std::cin.get() != '\n');
-				std::cout << "Invalid Input!" << std::endl << std::endl;
-				continue;
-			}
-			if (_decision == 1)
-			{
-				Thief.HP -= MainCharacter.DMG;
-				std::cout << std::endl << "You attack the thief with " << MainCharacter.DMG << " Damage!" << std::endl;
-
-			}
-			else if (_decision == 2)
+			while (Thief.HP > 0 && MainCharacter.HP > 0) //Winning condition, losing condition within loop
 			{
 				system("cls");
-				std::cout << std::endl << "Which item do you wish to use?" << std::endl
-						  << "1. Torch" << std::endl
-						  << "2. Go back" << std::endl;
 
+
+				std::cout << std::endl << "You're being ambushed by a thief!" << std::endl << std::endl
+					<< "The thief has " << Thief.HP << " HP" << std::endl << std::endl
+					<< "You have " << MainCharacter.HP << " HP" << std::endl << std::endl
+					<< "What do you do?" << std::endl
+					<< "1. Attack" << std::endl
+					<< "2. Use Item" << std::endl;
 				if (!(std::cin >> _decision))
 				{
 					std::cin.clear();
@@ -450,57 +505,80 @@ void fight()
 					std::cout << "Invalid Input!" << std::endl << std::endl;
 					continue;
 				}
-
-				Done = {};
-
-				switch (_decision)
+				if (_decision == 1)
 				{
-				case 1:
-				{
-					if (Inventory.Lighter == true)
-					{
-						Thief.HP -= 10;
-						std::cout << std::endl << "You have used the lighter to light up the torch and use it against the thief!" << std::endl;
-						system("pause");
-					}
-					else if (Inventory.Lighter == false)
-					{
-						std::cout << std::endl << ("You do not have a lighter!") << std::endl;
-						system("pause");
-					}
+					Thief.HP -= MainCharacter.DMG;
+					std::cout << std::endl << "You attack the thief with " << MainCharacter.DMG << " Damage!" << std::endl;
+
 				}
-				break;
-
-				case 2:
+				else if (_decision == 2)
 				{
-					continue;
-				}
-				default:
+					system("cls");
+					std::cout << std::endl << "Which item do you wish to use?" << std::endl
+						<< "1. Torch" << std::endl
+						<< "2. Go back" << std::endl;
+
+					if (!(std::cin >> _decision))
+					{
+						std::cin.clear();
+						while (std::cin.get() != '\n');
+						std::cout << "Invalid Input!" << std::endl << std::endl;
+						continue;
+					}
+
+					Done = {};
+
+					switch (_decision)
+					{
+					case 1:
+					{
+						if (Inventory.Lighter == true)
+						{
+							Thief.HP -= 10;
+							std::cout << std::endl << "You have used the lighter to light up the torch and use it against the thief!" << std::endl;
+							system("pause");
+						}
+						else if (Inventory.Lighter == false)
+						{
+							std::cout << std::endl << ("You do not have a lighter!") << std::endl;
+							system("pause");
+						}
+					}
 					break;
-				}
-			}
-			MainCharacter.HP -= Thief.DMG;
 
-			std::cout << "Thief attacks with " << Thief.DMG << std::endl;
+					case 2:
+					{
+						continue;
+					}
+					default:
+						break;
+					}
+				}
+				MainCharacter.HP -= Thief.DMG;
+
+				std::cout << "Thief attacks with " << Thief.DMG << std::endl;
+				system("pause");
+			}
+			MainCharacter.Score += 5;
+			MainCharacter.DMG += 2;
+			MainCharacter.HP = 10;
+			MainCharacter.HP += 8;
+			std::cout << "You have defeated the thief!" << std::endl << std::endl
+				<< "You gained experience from this fight, You can deal " << MainCharacter.DMG << " Damage now!" << std::endl;
 			system("pause");
+			trigger1 = true;
+			hideout();
 		}
 	}
 	if (MainCharacter.HP < 0)
 	{
 		gameover();
 	}
-	//Rewards
-	MainCharacter.Score += 5;
-	MainCharacter.DMG += 2;
-	MainCharacter.HP = 10;
-	MainCharacter.HP += 8;
-	std::cout << "You have defeated the thief!" << std::endl << std::endl
-		<< "You gained experience from this fight, You can deal " << MainCharacter.DMG << " Damage now!" << std::endl;
-	system("pause");
-	gameover();//Game over for now
-
-	if (locator == FIGHT2)
+	if (trigger1 == true)
 	{
+		if (locator == FIGHT2)
+		{
 
+		}
 	}
 }
