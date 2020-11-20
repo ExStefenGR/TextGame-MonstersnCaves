@@ -19,6 +19,7 @@ enum Location
 	WATERFALL,
 	FIGHT1,
 	FIGHT2,
+	LAKEMONSTER,
 	GAMEOVER
 };
 
@@ -44,7 +45,7 @@ void SwitchState();
 time_t init, final;
 double dif;
 //User's stats
-struct Player
+struct Entity
 {
 	std::string Name;
 	int DMG = 0;
@@ -55,8 +56,9 @@ struct Player
 	void SetName(std::string x){Name = x;}
 };
 
-Player MainCharacter;
-Player Thief;
+Entity MainCharacter;
+Entity Thief;
+Entity SwampMonster;
 
 //Character Items
 struct Items
@@ -318,7 +320,7 @@ void startpoint()
 		<< "Where would you like to go?" << std::endl
 		<< "1. Towards mountain" << std::endl
 		<< "2. Towards camp" << std::endl
-		<< "3. Towards river" << std::endl
+		<< "3. Towards Lake" << std::endl
 		<< "5. Check your stats"<< std::endl << std::endl;
 	SwitchState();
 }
@@ -422,7 +424,7 @@ void camp()
 		{
 			Inventory.increase();
 			Inventory.Lighter = true;
-			std::cout << std::endl << "You add the lighter to your inventory";
+			std::cout << std::endl << "You add the lighter to your inventory and go back, Something's changed..." << std::endl;
 			Done = true;
 		}
 		else
@@ -432,24 +434,61 @@ void camp()
 			Done = true;
 		}
 	}
+	Done = {};
 	system("pause");
 	system("cls");
-	std::cin.clear();
 	crossroads();
 }
 
-//RIVER1
+//LAKE
 void lake()
 {
 	locator = LAKE;
-	std::cout << std::endl << "Lake" << std::endl;
-	SwitchState();
+	time(&init);
+	std::cout <<std::endl<< "You arrive at a lake..." << std::endl;
+	system("pause");
+	system("cls");
+	std::cout << std::endl << "The center of the lake has a big chest, try to go towards it?" << std::endl
+		<<"1. Yes"<<std::endl << "2. No" << std::endl <<std::endl;
+	time(&final);
+	while (!Done)
+	{
+		if (!(std::cin >> _decision))
+		{
+			std::cin.clear();
+			while (std::cin.get() != '\n');
+			std::cout << "Invalid Input!" << std::endl << std::endl;
+			continue;
+		}
+
+		switch (_decision)
+		{
+			case 1:
+			{
+			std::cout << std::endl << "You have been trapped in a quicksand!" << std::endl;
+			system("pause");
+			gameover();
+			}
+		break;
+			case 2:
+			{
+			locator = LAKEMONSTER;
+			fight();
+			}
+		break;
+			default:
+			{
+			std::cout << std::endl << "Try again..";
+			}
+		}
+	}
 }
 
 //CROSSROADS
 void crossroads()
 {
 	locator = CROSSROADS;
+
 	if (trigger1 == false)
 	{
 		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
@@ -513,19 +552,47 @@ void ruins()
 void town()
 {
 	locator = TOWN;
-	if (trigger2 == false)
+	if (trigger1 == false)
 	{
-		time(&init); //Using time as years easter egg
-
+		system("cls");
 		std::cout << std::endl << "You enter an area that seems like a village." << std::endl
 			<< "most of the shops are closed and it almost feels like no one's here.." << std::endl;
 		system("pause");
 		system("cls");
+		std::cout << std::endl << "Go back to the cross-field?" << std::endl << "1. Yes" <<std::endl << std::endl;
+		while (!Done)
+		{
+			if (!(std::cin >> _decision))
+			{
+				std::cin.clear();
+				while (std::cin.get() != '\n');
+				std::cout << "Invalid Input!" << std::endl << std::endl;
+				continue;
+			}
+
+			switch (_decision)
+			{
+			case 1:
+			  {
+				crossroads();
+				Done = true;
+				break;
+			  }
+			default:
+				std::cout << "You can only take one step at a time " << MainCharacter.Name;
+				Done = false;
+				break;
+			}
+		}
+	}
+	else if (trigger1 == true)
+	{
+		time(&init); //Using time as years easter egg
 		std::cout << "!!" << std::endl;
 		system("pause");
 		system("cls");
 		std::cout << std::endl << "You see an old man waving in the distance, looking at you with a frowny look.." << std::endl << std::endl
-			<< "Old man: Well well if it isn't " << MainCharacter.Name << "... Where have you been?!"<< std::endl;
+			<< "Old man: Well well if it isn't " << MainCharacter.Name << "... Where have you been?!" << std::endl;
 		system("pause");
 		system("cls");
 		std::cout << "Old Man: Do you have any idea how many years you've been in the forests?" << std::endl;
@@ -534,7 +601,7 @@ void town()
 			<< "1. No" << std::endl
 			<< "2. Of course I do!" << std::endl
 			<< "3. What is this place and how do you know me?!" << std::endl;
-		while(!Done)
+		while (!Done)
 		{
 			if (!(std::cin >> _decision))
 			{
@@ -554,17 +621,17 @@ void town()
 				Done = true;
 				break;
 			}
-			
+
 			case 2:
 			{
 				time(&final);
 				dif = difftime(final, init);
-				std::cout << std::endl << "Old Man: Yes..You mean to tell me that I will totally believe" << 
-				std::endl << "that you were counting every second within the past " << dif << " years" << std::endl;
+				std::cout << std::endl << "Old Man: Yes..You mean to tell me that I will totally believe" <<
+					std::endl << "that you were counting every second within the past " << dif << " years" << std::endl;
 				Done = true;
 				break;
 			}
-			
+
 			case 3:
 			{
 				time(&final);
@@ -573,17 +640,12 @@ void town()
 				Done = true;
 				break;
 			}
-			
+
 			default:
-				std::cout << std::endl << "Old Man: I cannot understand the gibberish young one.. (Invalid input)"<< std::endl;
+				std::cout << std::endl << "Old Man: I cannot understand the gibberish young one.. (Invalid input)" << std::endl;
 				break;
 			}
 		}
-
-	}
-	else
-	{
-
 	}
 	SwitchState();
 }
@@ -609,14 +671,52 @@ void fight()
 	//Thief in River 2
 	Thief.Set_Values(15,3);
 	Thief.SetName("Thief");
-
+	SwampMonster.Set_Values(100, 5);
+	SwampMonster.SetName("SwampMonster");
 	system("cls");
+	if (locator == LAKEMONSTER)
+	{
+		while (SwampMonster.HP > 0 && MainCharacter.HP > 0) //Winning condition, losing condition within loop
+		{
+			system("cls");
+
+
+			std::cout << std::endl << "You're being ambushed by a " << SwampMonster.Name << "!" << std::endl << std::endl
+				<< "The "<< SwampMonster.Name << " has " << SwampMonster.HP << " HP" << std::endl << std::endl
+				<< "You have " << MainCharacter.HP << " HP" << std::endl << std::endl
+				<< "What do you do?" << std::endl
+				<< "1. Attack" << std::endl << std::endl;
+			if (!(std::cin >> _decision))
+			{
+				std::cin.clear();
+				while (std::cin.get() != '\n');
+				std::cout << "Invalid Input!" << std::endl << std::endl;
+				continue;
+			}
+			if (_decision == 1)
+			{
+				Thief.HP -= MainCharacter.DMG;
+				std::cout << std::endl << "You attack the " << SwampMonster.Name << " with " << MainCharacter.DMG << " Damage!" << std::endl;
+
+			}
+
+			MainCharacter.HP -= SwampMonster.DMG;
+
+			std::cout << SwampMonster.Name <<  " attacks with " << SwampMonster.DMG << std::endl;
+			system("pause");
+			
+		}
+		if (MainCharacter.HP <= 0)
+		{
+			gameover();
+		}
+	}
 	if (trigger1 == false)
 	{
 		if (locator == FIGHT1)
 		{
 
-			while (Thief.HP > 0 && MainCharacter.HP > 0) //Winning condition, losing condition within loop
+			while (Thief.HP > 0 && MainCharacter.HP > 0) //Winning condition
 			{
 				system("cls");
 
@@ -626,7 +726,7 @@ void fight()
 					<< "You have " << MainCharacter.HP << " HP" << std::endl << std::endl
 					<< "What do you do?" << std::endl
 					<< "1. Attack" << std::endl
-					<< "2. Use Item" << std::endl;
+					<< "2. Use Item" << std::endl << std::endl;
 				if (!(std::cin >> _decision))
 				{
 					std::cin.clear();
@@ -645,7 +745,7 @@ void fight()
 					system("cls");
 					std::cout << std::endl << "Which item do you wish to use?" << std::endl
 						<< "1. Torch" << std::endl
-						<< "2. Cancel (Skips your turn)" << std::endl;
+						<< "2. Cancel (Skips your turn)" << std::endl <<std::endl;
 
 					if (!(std::cin >> _decision))
 					{
@@ -694,7 +794,7 @@ void fight()
 				std::cout << "Thief attacks with " << Thief.DMG << std::endl;
 				system("pause");
 			}
-			if (MainCharacter.HP < 0)
+			if (MainCharacter.HP <= 0)
 			{
 				gameover();
 			}
