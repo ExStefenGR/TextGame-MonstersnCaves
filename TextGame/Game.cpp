@@ -19,7 +19,10 @@ enum Location
 	WATERFALL,
 	FIGHT1,
 	FIGHT2,
-	LAKEMONSTER,
+	LAKEMONSTER, //You can go back to lake AFTER RUINS (Just more strength)
+	VOLCANO,  //Optional Boss BroadSword (more damage)
+	CASTLE, //Optional Boss Magic spell Fire (new spell that casts 10 + the DMG stat)
+	THIEFGUILD, //Optional Boss (More damage but many enemies, player will have to wait for his/her turn)
 	GAMEOVER
 };
 
@@ -30,19 +33,19 @@ void startpoint();
 void mountain();
 void camp();
 void lake(); //gameover
-void river(); //fight
+void river(); //Thief encounter
 void ruins();
 void town();
 void monstercave();
 void hideout();
 void waterfall();
-void fight();
+void fight(); //All the fights and secret bossfights
 void gameover();
 
 void SwitchState();
 
 //timer
-time_t init, final;
+time_t init, final; //Used for one of the easter eggs with the Old man in Town
 double dif;
 //User's stats
 struct Entity
@@ -72,6 +75,17 @@ struct Items
 	int GearWeight = 1;
 	void increase() { count++;}
 	void decrease() { count--;}
+	void reset()
+	{
+		
+		bool Sword = false;
+		bool Lighter = false;
+		bool Map = false;
+		bool Scroll = false;
+		bool Torch = false;
+		int count = 1;
+		int GearWeight = 1;
+	}
 };
 
 Items Inventory;
@@ -81,7 +95,9 @@ int locator; //For actual locations (Mountain/River...)
 int _direction; //For directions within locations (NPC/People)
 int _decision;
 bool trigger1;
-bool trigger2;//Used for various situations
+bool trigger2;
+bool trigger3;
+bool optionalFights;//Used for various situations
 bool Done{}; //This is so the Switch gets repeated until the Player uses the correct variable value
 
 void stats(Items* Inventory)
@@ -239,9 +255,8 @@ void SwitchState()
 int main()
 {
 	//Resetting variables in case player wants to play again after game-over
-	Inventory.Sword = false;
-	Inventory.Scroll = false;
-	Inventory.Map = false;
+	Inventory.reset();
+
 	Inventory.Torch = true;
 	Inventory.increase();
 
@@ -355,10 +370,27 @@ void mountain()
 		{
 		case 1:
 			system("cls");
+
+			for (size_t i = 0; i < 3; i++)
+			{
+
+
+				system("color 09");
+				std::cout << std::endl << "o==={==>====>==>" << std::endl
+					<< "You have found a sword!" << std::endl;
+				system("color 07");
+
+				system("cls");
+			}
+			
+			system("color 07");
+
 			std::cout << std::endl << "o==={==>====>==>" << std::endl
 				<< "You have found a sword!" << std::endl;
+			system("color 07");
 
 			Inventory.Sword = true;
+			Inventory.increase();
 			system("pause");
 			Done = true;
 
@@ -489,6 +521,8 @@ void lake()
 //CROSSROADS
 void crossroads()
 {
+	system("cls");
+	system("color 07");
 	locator = CROSSROADS;
 
 	if (trigger1 == false)
@@ -498,14 +532,7 @@ void crossroads()
 			<< std::endl << "3. Towards Town"
 			<< std::endl << "5. Check stats" << std::endl << std::endl;
 	}
-	else if (trigger1 == true)
-	{
-		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
-			<< std::endl << "3. Towards Town"
-			<< std::endl << "4. Towards Hideout"
-			<< std::endl << "5. Check stats" << std::endl << std::endl;
-	}
-	else if (trigger1 == true && Inventory.Map == true)
+	else if (Inventory.Scroll == true && Inventory.Map == true)
 	{
 		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
 			<< std::endl << "2. Towards Ruins"
@@ -513,6 +540,14 @@ void crossroads()
 			<< std::endl << "4. Towards Hideout"
 			<< std::endl << "5. Check stats" << std::endl << std::endl;
 	}
+	else if (trigger1 == true)
+	{
+		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
+			<< std::endl << "3. Towards Town"
+			<< std::endl << "4. Towards Hideout"
+			<< std::endl << "5. Check stats" << std::endl << std::endl;
+	}
+
 
 	SwitchState();
 }
@@ -536,11 +571,11 @@ void hideout()
 {
 	locator = HIDEOUT;
 	system("cls");
-
+	Done = false;
 	if (Inventory.Scroll == false)
 	{
 		std::cout << std::endl << "You're inside the thief's hideout, the area is really dusty" << std::endl
-			      << std::endl << "Search up the area?" << std::endl << "1. Yes" << std::endl << "2. No" << std::endl << std::endl;
+			<< std::endl << "Search up the area?" << std::endl << "1. Yes" << std::endl << "2. No" << std::endl << std::endl;
 		while (!Done)
 		{
 			if (!(std::cin >> _decision))
@@ -554,18 +589,30 @@ void hideout()
 			{
 			case 1:
 			{
+				system("cls");
 				Inventory.Scroll = true;
 				Inventory.increase();
-				std::cout << std::endl << "You have found a scroll with mysterious writings!" << std::endl;
-
-				system("pause");
-				system("cls");
+				system("color 05");
+				std::cout << std::endl <<
+						 " ,-----------." << std::endl <<
+					    " (_/           )" << std::endl <<
+						 "|_           |" << std::endl <<
+						 " |    ***    |" <<std::endl <<
+						 " |  ***  *   |" <<std::endl << 
+					     " |_    **   _|_" <<std::endl <<
+					    " _ |            |" <<std::endl <<
+					  " (_ / _____(*)___ /" <<std::endl <<
+					"You have found a scroll with mysterious writings!" << std::endl; //easter egg, the hash stars are the main areas and the monster cave is the last mission
 				
+				system("pause");
+				system("color 07");
+				system("cls");
+
 				crossroads();
 
 			}
 			break;
-			
+
 			case 2:
 			{
 				std::cout << std::endl << "You have left the place without touching anything, who knows what could have been there.." << std::endl;
@@ -577,7 +624,7 @@ void hideout()
 				crossroads();
 			}
 			break;
-			
+
 			default:
 				std::cout << std::endl << "Please decide, (1 = Yes, 2 = No)" << std::endl << std::endl;
 				Done = false;
@@ -586,10 +633,11 @@ void hideout()
 
 		}
 	}
+
 	else if (Inventory.Scroll == true)
 	{
 		std::cout << std::endl << "You're inside the thief's hideout, looks like there is nothing here, head back?" << std::endl
-			      << std::endl << "1. Go back to crossroads";
+			<< std::endl << "0. Go back to crossroads" << std::endl << std::endl;
 
 		while (!Done)
 		{
@@ -599,17 +647,22 @@ void hideout()
 				while (std::cin.get() != '\n');
 				std::cout << "Invalid Input!" << std::endl << std::endl;
 				continue;
-
-				if (_decision == 1)
-				{
-					crossroads();
-				}
-				else
-				{
-					std::cout << std::endl << "There is nowhere else you can go from here.." << std::endl;
-				}
 			}
+
+			switch (_decision)
+			{
+			case 0:
+
+				crossroads();
+
+			default:
+				std::cout << std::endl << "Not a valid move" << std::endl;
+				break;
+			}
+
 		}
+
+	
 	}
 }
 
@@ -617,13 +670,41 @@ void hideout()
 void ruins()
 {
 	locator = RUINS;
-	std::cout << std::endl << "Ruins" << std::endl;
+
+	std::cout << std::endl << "You arrive at an ancient place filled with relics.." << std::endl;
+	
+	system("pause");
+	system("cls");
+	
+	std::cout << std::endl << "The Scroll from your inventory is radiating with a purple glow!" << std::endl;
+	
+	system("pause");
+	system("cls");
+	
+	Inventory.Scroll = false;
+	Inventory.decrease();
+	std::cout << "The scroll has vanished and a door catacomb has revealed the MONSTER CAVE" << std::endl << std::endl;
+
+	stats(&Inventory);
+
+	system("pause");
+	system("cls");
+
+	system("color 04");
+
+	std::cout << std::endl << "An ominous aura fills the place, Whenever you are ready.." << std::endl << std::endl
+		<< "1. Continue inside the MONSTER CAVE" << std::endl
+		<< "2. Go back and prepare" << std::endl << std::endl;
+
+	optionalFights = true; //Player can train in other areas because the next section of the code might use srand for damage
+
 	SwitchState();
 }
 
 //TOWN
 void town()
 {
+	system("cls");
 	locator = TOWN;
 	if (trigger1 == false)
 	{
@@ -658,6 +739,17 @@ void town()
 			}
 		}
 	}
+	else if (trigger3 == true)
+	{
+		system("cls");
+
+		std::cout << std::endl << "Old Man: Be careful out there.. " << MainCharacter.Name << std::endl << std::endl;
+
+		system("pause");
+
+		crossroads();
+
+	}
 	else if (trigger1 == true && Inventory.Scroll == true)
 	{
 		std::cout << std::endl << "You approach the Old man in the empty town to seek answers for the mysterious scroll you have found" << std::endl << std::endl;
@@ -673,7 +765,7 @@ void town()
 
 		Inventory.Map = true;
 		Inventory.increase();
-
+		trigger3 = true;
 
 	}
 	else if (trigger1 == true && trigger2 == true)
@@ -781,6 +873,7 @@ void town()
 //MONSTER_CAVE
 void monstercave()
 {
+	system("cls");
 	locator = MONSTER_CAVE;
 	std::cout << std::endl << "Monster Cave" << std::endl;
 	SwitchState();
@@ -789,6 +882,7 @@ void monstercave()
 //WATERFALL
 void waterfall()
 {
+	system("cls");
 	locator = WATERFALL;
 	std::cout << std::endl << "Waterfall" << std::endl;
 	SwitchState();
@@ -796,8 +890,6 @@ void waterfall()
 
 void fight()
 {
-
-
 	system("cls");
 	if (locator == LAKEMONSTER)
 	{
@@ -839,9 +931,8 @@ void fight()
 			gameover();
 		}
 	}
-	if (trigger1 == false)
-	{
-		if (locator == FIGHT1)
+	
+	if (locator == FIGHT1)
 		{
 			//Thief in River
 			Thief.Set_Values(10, 3);
@@ -942,6 +1033,5 @@ void fight()
 			trigger1 = true;
 			hideout();
 		}
-	}
 
 }
