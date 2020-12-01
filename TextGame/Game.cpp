@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include "DoorMinigame.h"
 
 
 //enum for places that will replace numbers
@@ -17,7 +18,7 @@ enum Location
 	LAKE,
 	MONSTER_CAVE,
 	WATERFALL,
-	FIGHT1,
+	THIEFFIGHT,
 	FIGHT2,
 	LAKEMONSTER, //You can go back to lake AFTER RUINS (Just more strength)
 	VOLCANO,  //Optional Boss BroadSword (more damage)
@@ -77,28 +78,30 @@ struct Items
 	void decrease() { count--;}
 	void reset()
 	{
-		
-		bool Sword = false;
-		bool Lighter = false;
-		bool Map = false;
-		bool Scroll = false;
-		bool Torch = false;
-		int count = 1;
-		int GearWeight = 1;
+		Sword = false;
+		Lighter = false;
+		Map = false;
+		Scroll = false;
+
+		count = 1;
+		GearWeight = 1;
 	}
 };
 
 Items Inventory;
 
 //Situational variables
-int locator; //For actual locations (Mountain/River...)
-int _direction; //For directions within locations (NPC/People)
-int _decision;
-bool trigger1;
-bool trigger2;
-bool trigger3;
-bool optionalFights;//Used for various situations
+int locator, _decision; //For actual locations (Mountain/River...)
+
+bool FirstMinigame, SecondMinigame;
+bool ThiefDefeated; //Thief defeated in Hideout
+bool OldManDialogueDone; //Initial dialogue done
+bool MapGiven; //Map Given From Old man
+bool optionalFights;//Optional fights unlocked
 bool Done{}; //This is so the Switch gets repeated until the Player uses the correct variable value
+
+//Minigame 
+DoorMinigame Game;
 
 void stats(Items* Inventory)
 {
@@ -132,7 +135,7 @@ void stats(Items* Inventory)
 	{
 		std::cout << std::endl << "Scroll" << std::endl;
 	}
-	if (Inventory->count < 1)
+	if (Inventory->count == 0)
 	{
 		std::cout << std::endl << "None" << std::endl;
 	}
@@ -158,11 +161,11 @@ void SwitchState()
 			{
 				mountain();
 			}
-			else if (locator == CROSSROADS && trigger1 == false)
+			else if (locator == CROSSROADS && ThiefDefeated == false)
 			{
 				river();
 			}
-			else if (locator == CROSSROADS && trigger1 == true)
+			else if (locator == CROSSROADS && ThiefDefeated == true)
 			{
 				std::cout << std::endl << "It appears that there is no reason to go to the river again" << std::endl;
 			}
@@ -188,7 +191,7 @@ void SwitchState()
 			{
 				camp();
 			}
-			else if (locator == CROSSROADS && Inventory.Map == true && trigger1 == true)
+			else if (locator == CROSSROADS && Inventory.Map == true && ThiefDefeated == true)
 			{
 				ruins();
 			}
@@ -225,11 +228,11 @@ void SwitchState()
 				std::cout << std::endl << "nonono" << std::endl;
 			}
 		case 4:
-			if (locator == CROSSROADS && trigger1 == true)
+			if (locator == CROSSROADS && ThiefDefeated == true)
 			{
 				hideout();
 			}
-			else if (locator == CROSSROADS && trigger1 == false)
+			else if (locator == CROSSROADS && ThiefDefeated == false)
 			{
 				std::cout << std::endl << "You see a building but you will have to go through the river first.." << std::endl;
 				system("pause");
@@ -260,8 +263,7 @@ int main()
 	Inventory.Torch = true;
 	Inventory.increase();
 
-	MainCharacter.DMG = 1;
-	MainCharacter.HP = 10;
+	MainCharacter.Set_Values(10, 1);
 	MainCharacter.Score = 0;
 
 	system("cls");
@@ -330,6 +332,8 @@ void gameover()
 void startpoint()
 {
 	locator = START_POINT;
+	Inventory.reset();
+	MainCharacter.Set_Values(10, 1); //In case player fails to get the mini game right
 
 	std::cout << "You awake and find yourself in a large field with a few pathroads.." << std::endl
 		<< "What you have on you is just a torch but nothing to light it up yet.." << std::endl
@@ -349,7 +353,7 @@ void mountain()
 
 	std::cout << "You have finally arrived on the side of the mountain" << std::endl
 		<< "You notice a unique object stuck in the rocks that is out of the ordinary" << std::endl
-		<< "Pick up?" << std::endl <<std::endl
+		<< "Pick up?" << std::endl << std::endl
 		<< "1. Yes" << std::endl
 		<< "2. No" << std::endl << std::endl
 		<< "5. Check your stats" << std::endl << std::endl;;
@@ -382,7 +386,7 @@ void mountain()
 
 				system("cls");
 			}
-			
+
 			system("color 07");
 
 			std::cout << std::endl << "o==={==>====>==>" << std::endl
@@ -398,7 +402,7 @@ void mountain()
 		case 2:
 			system("cls");
 			std::cout << std::endl << "You have left the object untouched" << std::endl;
-			
+
 			system("pause");
 			Done = true;
 			break;
@@ -414,8 +418,8 @@ void mountain()
 			break;
 		}
 	}
-		_decision = {}; //Reset the variables since I don't need them
-		Done = {};
+	_decision = {}; //Reset the variables since I don't need them
+	Done = {};
 
 	system("cls");
 	if (Inventory.Sword == true)
@@ -428,11 +432,18 @@ void mountain()
 	}
 
 	std::cout << std::endl << "You have heard an echo in the distance.." << std::endl
-			  << "You follow the road the echo came from regardless of the consequences" << std::endl;
+		<< "You follow the road the echo came from regardless of the consequences" << std::endl;
 
 	system("pause");
 	system("cls");
 	std::cin.clear();
+
+	Game.execute(FirstMinigame);
+	if (FirstMinigame == false)
+	{
+		startpoint(); //Failed the minigame
+	}
+
 	crossroads();
 }
 
@@ -525,7 +536,7 @@ void crossroads()
 	system("color 07");
 	locator = CROSSROADS;
 
-	if (trigger1 == false)
+	if (ThiefDefeated == false)
 	{
 		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
 			<< std::endl << "1. Towards River"
@@ -540,7 +551,7 @@ void crossroads()
 			<< std::endl << "4. Towards Hideout"
 			<< std::endl << "5. Check stats" << std::endl << std::endl;
 	}
-	else if (trigger1 == true)
+	else if (ThiefDefeated == true)
 	{
 		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
 			<< std::endl << "3. Towards Town"
@@ -555,7 +566,7 @@ void crossroads()
 //RIVER
 void river()
 {
-	locator = FIGHT1;
+	locator = THIEFFIGHT;
 	std::cout << std::endl << "You approach the bank of a river, There seems to be a cave on the other side covered by logs and leaves.. " << std::endl;
 	system("pause");
 	system("cls");
@@ -706,7 +717,7 @@ void town()
 {
 	system("cls");
 	locator = TOWN;
-	if (trigger1 == false)
+	if (ThiefDefeated == false)
 	{
 		system("cls");
 		std::cout << std::endl << "You enter an area that seems like a village." << std::endl
@@ -739,7 +750,7 @@ void town()
 			}
 		}
 	}
-	else if (trigger3 == true)
+	else if (MapGiven == true)
 	{
 		system("cls");
 
@@ -750,7 +761,7 @@ void town()
 		crossroads();
 
 	}
-	else if (trigger1 == true && Inventory.Scroll == true)
+	else if (ThiefDefeated == true && Inventory.Scroll == true)
 	{
 		std::cout << std::endl << "You approach the Old man in the empty town to seek answers for the mysterious scroll you have found" << std::endl << std::endl;
 
@@ -765,10 +776,10 @@ void town()
 
 		Inventory.Map = true;
 		Inventory.increase();
-		trigger3 = true;
+		MapGiven = true;
 
 	}
-	else if (trigger1 == true && trigger2 == true)
+	else if (ThiefDefeated == true && OldManDialogueDone == true)
 	{
 		std::cout << std::endl << "Old Man: Be useful please and find us the SCROLL we've been looking for.. " << std::endl;
 		system("pause");
@@ -778,7 +789,7 @@ void town()
 
 		crossroads();
 	}
-	else if (trigger1 == true)
+	else if (ThiefDefeated == true)
 	{
 		time(&init); //Using time as years easter egg
 		std::cout << "!!" << std::endl;
@@ -817,7 +828,7 @@ void town()
 				
 				std::cout << std::endl << "You heard the Old man and went back to cross-roads to look for what he is searching for..." << std::endl;
 				
-				trigger2 = true; //To make sure this dialogue is not repeated if the player revisits
+				OldManDialogueDone = true; //To make sure this dialogue is not repeated if the player revisits
 				crossroads();
 				
 				
@@ -836,7 +847,7 @@ void town()
 
 				std::cout << std::endl << "You heard the Old man and went back to cross-roads to look for what he is searching for..." << std::endl;
 
-				trigger2 = true; //To make sure this dialogue is not repeated if the player revisits
+				OldManDialogueDone = true; //To make sure this dialogue is not repeated if the player revisits
 				crossroads();;
 			
 			
@@ -854,7 +865,7 @@ void town()
 
 				std::cout << std::endl << "You heard the Old man and went back to cross-roads to look for what he is searching for..." << std::endl;
 
-				trigger2 = true; //To make sure this dialogue is not repeated if the player revisits
+				OldManDialogueDone = true; //To make sure this dialogue is not repeated if the player revisits
 				crossroads();
 			
 			}
@@ -865,7 +876,7 @@ void town()
 			}
 		}
 
-		trigger2 = true;
+		OldManDialogueDone = true;
 	}
 	crossroads();
 }
@@ -932,7 +943,7 @@ void fight()
 		}
 	}
 	
-	if (locator == FIGHT1)
+	if (locator == THIEFFIGHT)
 		{
 			//Thief in River
 			Thief.Set_Values(10, 3);
@@ -1030,7 +1041,7 @@ void fight()
 				<< "You can deal " << MainCharacter.DMG << " Damage now!" << std::endl
 				<< "HP increased to " << MainCharacter.HP << std::endl << std::endl;
 			system("pause");
-			trigger1 = true;
+			ThiefDefeated = true;
 			hideout();
 		}
 
