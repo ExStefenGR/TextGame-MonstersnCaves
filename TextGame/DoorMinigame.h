@@ -6,7 +6,8 @@ class DoorMinigame
 {
 
 public:
-	bool execute(bool &FirstMinigame);
+	bool MiniGame1(bool& FirstMinigame);
+	bool MiniGame2(bool& SecondMinigame);
 
 	
 	int m_choice, m_randomdoor, m_decision, m_randomresult, m_lives;
