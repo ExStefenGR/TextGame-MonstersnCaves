@@ -1060,9 +1060,9 @@ void fight()
 					else if (_decision == 2)
 					{
 						std::cout << std::endl << "You begin a very pleasant and high class conversation with the monsters, ";
-						system("sleep 3");
+						system("pause");
 						std::cout << std::endl << "They don't seem to care that much ";
-						system("sleep 3");
+						system("pause");
 					}
 					else if (_decision == 4)
 					{
