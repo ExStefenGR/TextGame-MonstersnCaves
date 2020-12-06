@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <ctime>
-#include "DoorMinigame.h"
+#include "Minigame.h"
 
 
 //enum for places that will replace numbers
@@ -104,7 +104,7 @@ bool optionalFights;//Optional fights unlocked
 bool Done{}; //This is so the Switch gets repeated until the Player uses the correct variable value
 
 //Minigame 
-DoorMinigame Game;
+Minigame Game;
 
 //A quick tool to see statistics as well as inventory
 void stats(Items* Inventory)
@@ -337,7 +337,13 @@ void startpoint()
 {
 	locator = START_POINT;
 	Inventory.reset();
-	MainChar.Set_Values(10, 1); //In case player fails to get the mini game right
+	 ThiefDefeated = false; 
+	 OldManDialogueDone = false;
+	 MapGiven = false; 
+	 optionalFights = false; //Resetting in case of gameover
+
+
+	MainChar.Set_Values(10, 1);
 
 	std::cout << "You awake and find yourself in a large field with a few pathroads.." << std::endl
 		<< "What you have on you is just a torch but nothing to light it up yet.." << std::endl
@@ -914,11 +920,11 @@ void waterfall()
 	system("cls");
 	locator = WATERFALL;
 	std::cout << std::endl << "Inside the Monster cave you find a waterfall" << std::endl;
-	system("sleep 3");
+	system("pause");
 	std::cout << std::endl << "You hear the echo from the Mountain suddendly surrounding you" << std::endl;
-	system("sleep 3");
+	system("pause");
 	std::cout << std::endl << "You approach the waterfall closer and closer by the second but every second turns to a minute.." << std::endl;
-	system("sleep 1");
+	system("pause");
 	std::cout << std::endl << "Every minute to an hour....."<< std::endl;
 	system("pause");
 	std::cout << std::endl << "!!!" << std::endl;
@@ -928,12 +934,12 @@ void waterfall()
 	system("pause");
 	system("cls");
 	std::cout << std::endl << "You have awoken at the back of a horse carriage in the woods" << std::endl;
-	system("sleep 2");
+	system("pause");
 	std::cout << std::endl << "The place seems like the gates of the Town you visited a while ago..But something is different.." << std::endl;
 	system("pause");
 	system("cls");
 	std::cout << std::endl << "Old Man: So " << MainChar.Name << ", How was the Mountain..?" << std::endl;
-	system("sleep 5");
+	system("pause");
 	std::cout << std::endl << "Old Man: You seem really out of speech so I take it as really breath-taking." << std::endl;
 	system("pause");
 	system("cls");
@@ -941,7 +947,7 @@ void waterfall()
 	system("pause");
 	
 	system("cls");
-	system("sleep 5");
+	system("pause");
 	system("color 03");
 
 	std::cout << "             [         Developed by Stefanos Triantafyllidis          ]                   " << std::endl<<std::endl<<std::endl;
@@ -954,6 +960,7 @@ void waterfall()
 
 void fight()
 {
+	std::cin.clear();
 	system("cls");
 	if (locator == MONSTER_CAVE)
 	{
@@ -961,24 +968,30 @@ void fight()
 		StrangeMonster1.SetName("Void Walker");
 		StrangeMonster2.Set_Values(20, 2);
 		StrangeMonster2.SetName("Piranha Plant");
-
-		while (StrangeMonster1.HP > 0 && StrangeMonster2.HP > 0 && MainChar.HP > 0)
+		int _counter = 0;
+		while (_counter < 2  && MainChar.HP > 0)
 		{
+			if (StrangeMonster1.HP <= 0 && StrangeMonster2.HP <= 0)
+			{
+				_counter = 2;
+			}
+			std::cin.clear();
 			system("cls");
 			system("color 04");
 
 				std::cout << std::endl << "You are being attacked by " << StrangeMonster1.Name << " and " << StrangeMonster2.Name << std::endl << std::endl
-					<< StrangeMonster1.Name << " has" << StrangeMonster1.HP << " HP" << std::endl
-					<< StrangeMonster2.Name << " has" << StrangeMonster2.HP << " HP" << std::endl << std::endl
+					<< StrangeMonster1.Name << " has" << StrangeMonster1.HP << "  HP" << std::endl
+					<< StrangeMonster2.Name << " has" << StrangeMonster2.HP << "  HP" << std::endl << std::endl
 					<< "You have " << MainChar.HP << " HP" << std::endl
 					<< "What do you do?" << std::endl << std::endl
 					<< "1. Attack" << std::endl
 					<< "2. Try to Talk to them?" << std::endl
 					<< "4. RUN" << std::endl
 					<< "5. Check stats" << std::endl << std::endl;
-		// Player Choice
+		
+				// Player Choice
+				
 				std::cin.clear();
-
 				if (!(std::cin >> _decision))
 				{
 					std::cin.clear();
@@ -1044,14 +1057,14 @@ void fight()
 
 
 					}
-					if (_decision == 2)
+					else if (_decision == 2)
 					{
 						std::cout << std::endl << "You begin a very pleasant and high class conversation with the monsters, ";
 						system("sleep 3");
 						std::cout << std::endl << "They don't seem to care that much ";
 						system("sleep 3");
 					}
-					if (_decision == 4)
+					else if (_decision == 4)
 					{
 						std::cout << "You run out of Monster Cave!" << std::endl;
 						crossroads();
@@ -1070,7 +1083,7 @@ void fight()
 						std::cout << std::endl << StrangeMonster1.Name << " Has attacked you for " << StrangeMonster1.DMG << " Damage" << std::endl << std::endl;
 
 					}
-					if (StrangeMonster1.HP > 0 && StrangeMonster2.HP > 0)
+					else if (StrangeMonster1.HP > 0 && StrangeMonster2.HP > 0)
 					{
 						 MainChar.HP -= StrangeMonster1.DMG;
 						 MainChar.HP -= StrangeMonster2.DMG;
@@ -1087,10 +1100,6 @@ void fight()
 			gameover();
 		}
 
-		MainChar.Score += 5;
-		MainChar.DMG += 5;
-		MainChar.HP += 5;
-		
 		std::cout << std::endl << "You have defeated " << StrangeMonster1.Name << " and " << StrangeMonster2.Name << std::endl << std::endl;
 
 		system("pause");

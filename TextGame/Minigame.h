@@ -2,7 +2,7 @@
 #include <iostream>
 #include <ctime>
 
-class DoorMinigame
+class Minigame
 {
 
 public:
@@ -10,7 +10,9 @@ public:
 	bool MiniGame2(bool& SecondMinigame);
 
 	
+	time_t m_start, m_finish;
 	int m_choice, m_randomdoor, m_decision, m_randomresult, m_lives;
+	double m_dif;
 	bool m_Done;
 
 
