@@ -40,7 +40,7 @@ void river();		//Area that the player encounters the thief
 void ruins();		//Area that you use the Scroll item and go through the maze, Unlocks bossfights if they decide not to go in MONSTER CAVE yet.
 void startpoint();	//Beginning of the adventure
 
-void town();		//Town that you can interact with the old man AFTER defeating the thief, If you chose not to get the scroll on the first chance, there is an easter egg using the timer
+void town();		//Town that you can interact with the old man AFTER defeating the thief, If you chose not to get the scroll on the first chance, there is an easter egg using ctime
 					//also heals the player when they are doing the optional 
 
 void volcano();		//Optional bossfight with a self-regenative magma creature using srand
@@ -55,6 +55,7 @@ time_t init, final;//Used for one of the easter eggs with the Old man in Town.
 
 double dif,w_dif;
 
+
 //Wait function for the purpose of making the player read instead of skip important parts of the text game.
 void wait(double w_seconds)
 {
@@ -67,32 +68,25 @@ void wait(double w_seconds)
 	
 }
 
-//User's stats
-struct Entity
-{
-	std::string Name;
-	int DMG = 0;
-	int HP = 0;
-	int MaxHP = 0;
-	int Score = 0;
-	void increase(){ Score += 5; }
-	void Set_Values(int x, int y){HP = x; DMG = y;}
-	void SetName(std::string x){Name = x;}
 
-	//Used to reset the Player's HP to the original value
-	void ResetHP()
-	{
-		MaxHP = HP;
-	} 
-};
 
-Entity MainChar; 
-Entity Thief;
-Entity SwampMonster;
 
-Entity StrangeMonster1;
-Entity StrangeMonster2;
 
+
+
+//Situational variables
+int locator, _decision; //For actual locations (Mountain/River...)
+
+bool FirstMinigame, SecondMinigame; //Returns a true or false value depending on the minigame's outcome.
+
+bool ThiefDefeated; //Thief defeated in Hideout
+bool OldManDialogueDone; //Initial dialogue done
+bool MapGiven; //Map Given From Old man
+bool optionalFights;//Optional fights unlocked
+bool Done{}; //This is so the Switch gets repeated until the Player uses the correct variable value
+
+bool monstercaveEntered; // if character has already gone to Monster Cave
+bool vdmdone, smdone, nkdone; //optional bossfights and checking if they are done, unlocks once monstercaveEntered is triggered as true and the player goes back before the final bossfight.
 //Character Items
 struct Items
 {
@@ -111,26 +105,49 @@ struct Items
 		Lighter = false;
 		Map = false;
 		Scroll = false;
+		FirstMinigame = false;
+		SecondMinigame = false; //Returns a true or false value depending on the minigame's outcome.
+
+		ThiefDefeated = false; //Thief defeated in Hideout
+		OldManDialogueDone = false; //Initial dialogue done
+		MapGiven = false; //Map Given From Old man
+		optionalFights = false;//Optional fights unlocked
+		Done = false; //This is so the Switch gets repeated until the Player uses the correct variable value
+
+		monstercaveEntered = false; // if character has already gone to Monster Cave
+		vdmdone = false, smdone = false, nkdone = false; //optional bossfights and checking if they are done, unlocks once monstercaveEntered is triggered as true and the player goes back before the final bossfight.
 
 		count = 1;
 		GearWeight = 1;
 	}
 };
-
 Items Inventory;
 
-//Situational variables
-int locator, _decision; //For actual locations (Mountain/River...)
+//User's stats
+struct Entity
+{
+	std::string Name;
+	int DMG = 0;
+	int HP = 0;
+	int MaxHP = 0;
+	int Score = 0;
+	void increase(){ Score += 5; }
+	void Set_Values(int x, int y){HP = x; DMG = y;}
+	void SetName(std::string x){Name = x;}
 
-bool FirstMinigame, SecondMinigame; //Returns a true or false value depending on the minigame's outcome.
-bool ThiefDefeated; //Thief defeated in Hideout
-bool OldManDialogueDone; //Initial dialogue done
-bool MapGiven; //Map Given From Old man
-bool optionalFights;//Optional fights unlocked
-bool monstercaveEntered; // if character has already gone to Monster Cave
-bool Done{}; //This is so the Switch gets repeated until the Player uses the correct variable value
+	//Used to reset the Player's HP to the original value
+	void ResetHP()
+	{
+		HP = MaxHP;
+	} 
+};
 
-bool vdmdone, smdone, nkdone; //optional bossfights and checking if they are done, unlocks once monstercaveEntered is triggered as true and the player goes back before the final bossfight.
+Entity MainChar; 
+Entity Thief;
+Entity SwampMonster;
+
+Entity StrangeMonster1;
+Entity StrangeMonster2;
 
 //Minigame 
 Minigame Game;
@@ -228,6 +245,10 @@ void SwitchState()
 			if (locator == START_POINT)
 			{
 				camp();
+			}
+			else if (locator == CROSSROADS && monstercaveEntered == true)
+			{
+				std::cout << std::endl << "Ruins are off limits right now.. " << std::endl << std::endl;
 			}
 			else if (locator == CROSSROADS && Inventory.Map == true && ThiefDefeated == true)
 			{
@@ -622,9 +643,9 @@ void crossroads()
 			<< std::endl << "1. Monster Cave"
 			<< std::endl << "3. Towards Town"
 			<< std::endl << "4. Towards Hideout" << std::endl
-			<<std::endl << "6. Towards Lake (Lake Monster Bossfight)"
-						<< "7. Towards Volcano (Optional BossFight)"
-					    << "8. Towards Castle (Optional BossFight)"
+			<< std::endl << "6. Towards Lake (Lake Monster Bossfight)"
+			<< std::endl << "7. Towards Volcano (Optional BossFight)"
+			<< std::endl << "8. Towards Castle (Optional BossFight)"
 			<< std::endl << "5. Check stats" << std::endl << std::endl;
 	}
 	else if (ThiefDefeated == true)
@@ -1045,7 +1066,7 @@ void volcano()
 {
 	locator = VOLCANO;
 	system("cls");
-	system("color 8C");
+	system("color 84");
 
 	//dialogue
 	std::cout << std::endl << "You have revisited the mountain, Now with your newfound magical powers from the Old Man in Town you can climb your way to the top.." << std::endl;
@@ -1269,7 +1290,7 @@ void fight()
 			MainChar.HP -= SwampMonster.DMG;
 
 			std::cout << SwampMonster.Name << " attacks with " << SwampMonster.DMG << std::endl;
-			wait(2);
+			system("pause");
 
 		}
 		if (MainChar.HP <= 0) //Gameover if Character is dead
@@ -1290,6 +1311,7 @@ void fight()
 		system("pause");
 		MainChar.ResetHP();
 
+		crossroads();
 	}
 	if (locator == THIEFFIGHT)
 	{
@@ -1385,10 +1407,12 @@ void fight()
 			gameover();
 		}
 		MainChar.Score += 5;
+
 		MainChar.DMG += 2;
-		MainChar.HP = 10;
-		MainChar.HP += 8;
-		MainChar.Score++;
+		MainChar.MaxHP +=8;
+
+		MainChar.ResetHP();
+	
 		std::cout << "You have defeated the thief!" << std::endl << std::endl
 			<< "You gained experience from this fight!" << std::endl
 			<< "You can deal " << MainChar.DMG << " Damage now!" << std::endl
@@ -1433,7 +1457,7 @@ void fight()
 			if (_decision == 1)
 			{
 				std::cout << std::endl << "You deal " << MainChar.DMG << " Damage to " << VDM.Name << std::endl;
-				VDM.HP -= MainChar.HP;
+				VDM.HP -= MainChar.DMG;
 				wait(3);
 			}
 			if (_decision == 2)
@@ -1442,7 +1466,9 @@ void fight()
 				srand((int)time(0));
 				_heal = rand() % 10 + 1;
 				std::cout << std::endl << "You attempt to catch your breath for a moment and restore " << _heal << " HP";
+				_heal += MainChar.HP;
 				wait(3);
+
 			}
 
 			//This Optional bossfight regens HP randomly
@@ -1450,7 +1476,7 @@ void fight()
 			{
 				srand((int)time(0));
 				_heal = rand() % 20 + 1;
-				if (_heal < 5)
+				if (_heal > 5)
 				{
 					std::cout << std::endl << VDM.Name << " Has merged with the volcanic magma and restored " << _heal << " HP" << std::endl;
 					_heal += VDM.HP;
@@ -1459,6 +1485,7 @@ void fight()
 			}
 
 			std::cout << std::endl << "The " << VDM.Name << " has striked with " << VDM.DMG << " Damage!" << std::endl;
+			MainChar.HP -= VDM.DMG;
 			system("pause");
 
 		}
@@ -1475,13 +1502,127 @@ void fight()
 		std::cout << std::endl << "You gain experience from this fight" << std::endl << std::endl;
 		MainChar.MaxHP += 10;
 		MainChar.DMG += 5;
-		MainChar.ResetHP();
 
-
+		std::cout << std::endl << "Damage increased to " << MainChar.DMG << "!" << std::endl;
+		std::cout << std::endl << "HP increased to " << MainChar.HP << "!" << std::endl << std::endl;
+		system("pause");
+		std::cout << std::endl << "Make sure you heal later in town!" << std::endl << std::endl;
+		system("pause");
+		crossroads();
 	}
 	if (locator == CASTLE)
-	{ //Crit chance and heal factor
+	{ 
+		int _heal = 0;
+		int _crit = 0;
+		int _combined = 0;
 
+		Entity NK;
+		NK.SetName("Night Knight");
+		NK.Set_Values(65, 10);
+		NK.MaxHP = 65;
+
+		std::cout << std::endl << "Looks like " << NK.Name << " is frustrated and ready to fight" << std::endl;
+		system("pause");
+
+		while (MainChar.HP >= 0 && NK.HP >= 0)
+		{
+			system("cls");
+
+
+			std::cout << std::endl << "You are fighting against " << NK.Name << "!" << std::endl << std::endl
+				<< "The " << NK.Name << " has " << NK.HP << " HP" << std::endl << std::endl
+				<< "You have " << MainChar.HP << " HP" << std::endl << std::endl
+				<< "What do you do?" << std::endl
+				<< "1. Attack" << std::endl
+				<< "2. Rest" << std::endl
+				<< "3. Charged Attack" << std::endl;
+
+			//Player choices and actions
+			if (!(std::cin >> _decision))
+			{
+				std::cin.clear();
+				while (std::cin.get() != '\n');
+				std::cout << "Invalid Input!" << std::endl << std::endl;
+				continue;
+			}
+			if (_decision == 1)
+			{
+				std::cout << std::endl << "You deal " << MainChar.DMG << " Damage to " << NK.Name << std::endl;
+				NK.HP -= MainChar.DMG;
+				wait(3);
+			}
+			if (_decision == 2)
+			{
+				//Random Healing factor
+				srand((int)time(0));
+				_heal = rand() % 10 + 1;
+				std::cout << std::endl << "You attempt to catch your breath for a moment and restore " << _heal << " HP";
+				_heal += MainChar.HP;
+				wait(3);
+			}
+			if (_decision == 3)
+			{
+				srand((int)time(0));
+				_crit = rand() % 10 + 1;
+				_combined = _crit + MainChar.DMG;
+
+
+				std::cout << std::endl << "Using sheer force you attempt to use all of your energy. You deal " << _combined << " Damage and lose 3 HP" << std::endl;
+				system("pause");
+
+				NK.HP -= _combined;
+			}
+
+			//This Optional bossfight regens HP randomly
+			if (NK.HP < NK.MaxHP)
+			{
+				srand((int)time(0));
+				_heal = rand() % 20 + 1;
+				if (_heal < 5)
+				{
+					std::cout << std::endl << NK.Name << " Has attempted to take a breather and restored " << _heal << " HP" << std::endl;
+					_heal += NK.HP;
+
+				}
+			}
+
+			srand((int)time(0));
+			_crit = rand() % 10 + 1;
+
+			_combined = _crit + NK.DMG;
+
+			if (_crit >= 5)
+			{
+				std::cout << std::endl << "The " << NK.Name << " has forcefully striked with " << _combined << " Damage!" << std::endl;
+				MainChar.HP -= _combined;
+				system("pause");
+			}
+
+			else if(_crit < 5)
+			{
+				std::cout << std::endl << "The " << NK.Name << " has striked with " << NK.DMG << " Damage!" << std::endl;
+			}
+
+		}
+
+		if (MainChar.HP <= 0)
+		{
+			gameover();
+		}
+
+		nkdone = true;
+
+		std::cout << std::endl << "You notice that the armor was hollow all along!" << std::endl;
+		wait(3);
+		std::cout << std::endl << "You gain experience from this fight" << std::endl << std::endl;
+		MainChar.MaxHP += 10;
+		MainChar.DMG += 5;
+		std::cout << std::endl << "Damage increased to " << MainChar.DMG << "!" << std::endl;
+		std::cout << std::endl << "HP increased to " << MainChar.HP << "!" << std::endl << std::endl;
+		system("pause");
+		std::cout << std::endl << "Make sure you heal later in town!" << std::endl << std::endl;
+		system("pause");
+		crossroads();
 
 
 	}
