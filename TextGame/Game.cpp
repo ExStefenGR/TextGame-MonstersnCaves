@@ -46,7 +46,7 @@ void town();		//Town that you can interact with the old man AFTER defeating the 
 void volcano();		//Optional bossfight with a self-regenative magma creature using srand
 void waterfall(); //Last are and credits
 
-void gameover(); //Gameover screen which shows the player the final stats and the score
+int gameover(); //Gameover screen which shows the player the final stats and the score
 
 void SwitchState(); //One of the key elements of the game, it maps the whole of the game using the Enumarator Location and a switch with inline if statements. can be used as a debug tool too.
 
@@ -82,10 +82,10 @@ bool FirstMinigame, SecondMinigame; //Returns a true or false value depending on
 bool ThiefDefeated; //Thief defeated in Hideout
 bool OldManDialogueDone; //Initial dialogue done
 bool MapGiven; //Map Given From Old man
-bool optionalFights;//Optional fights unlocked
 bool Done{}; //This is so the Switch gets repeated until the Player uses the correct variable value
 
-bool monstercaveEntered; // if character has already gone to Monster Cave
+bool optionalFights; // if character has already gone to ruins, this triggers challenging bossfights back in Crossroads
+
 bool vdmdone, smdone, nkdone; //optional bossfights and checking if they are done, unlocks once monstercaveEntered is triggered as true and the player goes back before the final bossfight.
 //Character Items
 struct Items
@@ -113,8 +113,6 @@ struct Items
 		MapGiven = false; //Map Given From Old man
 		optionalFights = false;//Optional fights unlocked
 		Done = false; //This is so the Switch gets repeated until the Player uses the correct variable value
-
-		monstercaveEntered = false; // if character has already gone to Monster Cave
 		vdmdone = false, smdone = false, nkdone = false; //optional bossfights and checking if they are done, unlocks once monstercaveEntered is triggered as true and the player goes back before the final bossfight.
 
 		count = 1;
@@ -212,7 +210,7 @@ void SwitchState()
 			{
 				mountain();
 			}
-			else if (locator == CROSSROADS && monstercaveEntered == true)
+			else if (locator == CROSSROADS && optionalFights == true)
 			{
 				locator = MONSTER_CAVE;
 				fight();
@@ -246,7 +244,7 @@ void SwitchState()
 			{
 				camp();
 			}
-			else if (locator == CROSSROADS && monstercaveEntered == true)
+			else if (locator == CROSSROADS && optionalFights == true)
 			{
 				std::cout << std::endl << "Ruins are off limits right now.. " << std::endl << std::endl;
 			}
@@ -303,21 +301,21 @@ void SwitchState()
 			stats(&Inventory);
 			break;
 		case 6:
-			if (locator == CROSSROADS && monstercaveEntered == true)
+			if (locator == CROSSROADS && optionalFights == true)
 			{
 				locator = LAKEMONSTER;
 				fight();
 			}
 			break;
 		case 7:
-			if (locator == CROSSROADS && monstercaveEntered == true)
+			if (locator == CROSSROADS && optionalFights == true)
 			{
 				locator = VOLCANO;
 				volcano();
 				
 			}
 		case 8:
-			if (locator == CROSSROADS && monstercaveEntered == true)
+			if (locator == CROSSROADS && optionalFights == true)
 			{
 				locator = CASTLE;
 				castle();
@@ -360,7 +358,7 @@ int main()
 }
 
 //GameOver sequence
-void gameover()
+int gameover()
 {
 	system("cls");
 	std::cin.clear();
@@ -392,14 +390,15 @@ void gameover()
 		{
 		case 1:
 
+			system("color 07");
 			main();
 			Done = true;
+			
 			break;
 		case 2:
 
-			system("exit");
+			exit(0); //Closes app
 			
-			Done = true;
 			break;
 		default:
 			std::cout << std::endl << "Please decide..." << std::endl;
@@ -629,15 +628,7 @@ void crossroads()
 			<< std::endl << "3. Towards Town"
 			<< std::endl << "5. Check stats" << std::endl << std::endl;
 	}
-	else if (Inventory.Scroll == true && Inventory.Map == true)
-	{
-		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
-			<< std::endl << "2. Towards Ruins"
-			<< std::endl << "3. Towards Town"
-			<< std::endl << "4. Towards Hideout"
-			<< std::endl << "5. Check stats" << std::endl << std::endl;
-	}
-	else if (Inventory.Scroll == false && monstercaveEntered == true)
+	else if (optionalFights == true)
 	{
 		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
 			<< std::endl << "1. Monster Cave"
@@ -648,6 +639,15 @@ void crossroads()
 			<< std::endl << "8. Towards Castle (Optional BossFight)"
 			<< std::endl << "5. Check stats" << std::endl << std::endl;
 	}
+	else if (Inventory.Scroll == true && Inventory.Map == true)
+	{
+		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
+			<< std::endl << "2. Towards Ruins"
+			<< std::endl << "3. Towards Town"
+			<< std::endl << "4. Towards Hideout"
+			<< std::endl << "5. Check stats" << std::endl << std::endl;
+	}
+
 	else if (ThiefDefeated == true)
 	{
 		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
@@ -805,7 +805,7 @@ void ruins()
 		<< "1. Continue inside the MONSTER CAVE" << std::endl
 		<< "2. Go back and prepare" << std::endl << std::endl;
 
-	optionalFights = true; //Player can train in other areas because the next section of the code might use srand for damage
+	optionalFights = true; //Player can train in other areas.
 
 	SwitchState();
 }
@@ -848,7 +848,7 @@ void town()
 			}
 		}
 	}
-	else if (monstercaveEntered == true)
+	else if (optionalFights == true)
 	{
 		system("cls");
 		std::cout << std::endl << "Old Man: Back to me I see? Let me heal you..." << std::endl << std::endl;
@@ -856,6 +856,7 @@ void town()
 		std::cout << std::endl << "The old man casts a healing spell, your wounds have been healed!" << std::endl << std::endl
 			<<"HP was at " << MainChar.HP << " and you have been healed back at " << MainChar.MaxHP << " !" <<std::endl;
 		MainChar.ResetHP();
+		system("pause");
 
 
 	}
@@ -889,9 +890,9 @@ void town()
 		MapGiven = true;
 
 		MainChar.Score++;
-		MainChar.HP += 10;
+		MainChar.MaxHP += 10;
 		MainChar.DMG += 5;
-
+		MainChar.ResetHP();
 	}
 	else if (ThiefDefeated == true && OldManDialogueDone == true)
 	{
@@ -900,6 +901,7 @@ void town()
 		system("cls");
 
 		std::cout << std::endl << "You heard the Old man and went back to cross-roads to look for what he is searching for..." << std::endl;
+		wait(2);
 
 		crossroads();
 	}
@@ -1008,7 +1010,6 @@ void monstercave()
 
 	Inventory.Scroll = false;
 	Inventory.decrease();
-	monstercaveEntered = true;
 
 	std::cout << std::endl << "You encounter a strange monster!" << std::endl;
 	fight();
@@ -1618,7 +1619,7 @@ void fight()
 		MainChar.MaxHP += 10;
 		MainChar.DMG += 5;
 		std::cout << std::endl << "Damage increased to " << MainChar.DMG << "!" << std::endl;
-		std::cout << std::endl << "HP increased to " << MainChar.HP << "!" << std::endl << std::endl;
+		std::cout << std::endl << "HP increased to " << MainChar.MaxHP << "!" << std::endl << std::endl;
 		system("pause");
 		std::cout << std::endl << "Make sure you heal later in town!" << std::endl << std::endl;
 		system("pause");
