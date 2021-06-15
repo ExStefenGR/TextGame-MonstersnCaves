@@ -2,8 +2,6 @@
 #include <string>
 #include <ctime>
 #include "Minigame.h"
-
-
 //Location relates to locator and is used for the navigation and as a secondary "boolean" statement that has more than one option, see further comments for info.
 enum Location
 {
@@ -25,8 +23,6 @@ enum Location
 	THIEFGUILD, 
 	GAMEOVER
 };
-
-
 //Functions
 void camp();		 //You can get the lighter for the torch for this, not very useful as you will need the sword later on and it is not obtainable later on
 void castle();		 //Optional bossfight
@@ -39,53 +35,31 @@ void mountain();	//Area where you get the sword, pseudo-animation of flashing sw
 void river();		//Area that the player encounters the thief
 void ruins();		//Area that you use the Scroll item and go through the maze, Unlocks bossfights if they decide not to go in MONSTER CAVE yet.
 void startpoint();	//Beginning of the adventure
-
 void town();		//Town that you can interact with the old man AFTER defeating the thief, If you chose not to get the scroll on the first chance, there is an easter egg using ctime
 					//also heals the player when they are doing the optional 
-
 void volcano();		//Optional bossfight with a self-regenative magma creature using srand
 void waterfall(); //Last are and credits
-
 int gameover(); //Gameover screen which shows the player the final stats and the score
-
 void SwitchState(); //One of the key elements of the game, it maps the whole of the game using the Enumarator Location and a switch with inline if statements. can be used as a debug tool too.
-
 //timers
 time_t init, final;//Used for one of the easter eggs with the Old man in Town.
-
 double dif,w_dif;
-
-
 //Wait function for the purpose of making the player read instead of skip important parts of the text game.
 void wait(double w_seconds)
 {
 	clock_t w_start = clock();
 	double w_secondsNeeded = w_seconds * CLOCKS_PER_SEC; // <--This lets the compiler know that we need to modify this to seconds
-
 	while (clock() < w_start + w_secondsNeeded); // Does nothing until number is reached in seconds
-
-	return;
-	
+	return;	
 }
-
-
-
-
-
-
-
 //Situational variables
 int locator, _decision; //For actual locations (Mountain/River...)
-
 bool FirstMinigame, SecondMinigame; //Returns a true or false value depending on the minigame's outcome.
-
 bool ThiefDefeated; //Thief defeated in Hideout
 bool OldManDialogueDone; //Initial dialogue done
 bool MapGiven; //Map Given From Old man
 bool Done{}; //This is so the Switch gets repeated until the Player uses the correct variable value
-
 bool optionalFights; // if character has already gone to ruins, this triggers challenging bossfights back in Crossroads
-
 bool vdmdone, smdone, nkdone; //optional bossfights and checking if they are done, unlocks once monstercaveEntered is triggered as true and the player goes back before the final bossfight.
 //Character Items
 struct Items
@@ -120,7 +94,6 @@ struct Items
 	}
 };
 Items Inventory;
-
 //User's stats
 struct Entity
 {
@@ -132,21 +105,17 @@ struct Entity
 	void increase(){ Score += 5; }
 	void Set_Values(int x, int y){HP = x; DMG = y;}
 	void SetName(std::string x){Name = x;}
-
 	//Used to reset the Player's HP to the original value
 	void ResetHP()
 	{
 		HP = MaxHP;
 	} 
 };
-
 Entity MainChar; 
 Entity Thief;
 Entity SwampMonster;
-
 Entity StrangeMonster1;
 Entity StrangeMonster2;
-
 //Minigame 
 Minigame Game;
 
@@ -158,18 +127,13 @@ void stats(Items* Inventory)
 						   << "Your gear weighs " << Inventory->GearWeight << " Kilograms and" << std::endl
 						   << "You have " << Inventory->count << " Items in your possession" <<std::endl
 						   << "Items you have acquired so far" << std::endl;
-
 	if (Inventory->Torch == true)
 	{
-
 		std::cout << std::endl << "Torch" << std::endl;
-
 	}
 	if (Inventory->Sword == true)
 	{
-
 		std::cout << std::endl <<"Sword"<< std::endl;
-
 	}
 	if (Inventory->Map == true)
 	{
@@ -189,7 +153,6 @@ void stats(Items* Inventory)
 	}
 	std::cout << std::endl;
 }
-
 //The below function can also be used as a debug tool to explore different rooms.
 void SwitchState()
 {
@@ -202,7 +165,6 @@ void SwitchState()
 			std::cout << "Invalid Input!" << std::endl << std::endl;
 			continue;
 		}
-
 		switch (_decision)
 		{
 		case 1:
@@ -223,9 +185,7 @@ void SwitchState()
 			{
 				std::cout << std::endl << "It appears that there is no reason to go to the river again" << std::endl;
 			}
-		
 			//River2 is a combat fight
-
 			else if (locator == HIDEOUT)
 			{
 				crossroads();
@@ -312,7 +272,6 @@ void SwitchState()
 			{
 				locator = VOLCANO;
 				volcano();
-				
 			}
 		case 8:
 			if (locator == CROSSROADS && optionalFights == true)
@@ -327,18 +286,12 @@ void SwitchState()
 		}
 	}
 }
-
-
-
 //start
 int main()
 {
-	//Resetting variables in case player wants to play again after game-over
 	Inventory.reset();
-
 	Inventory.Torch = true;
 	Inventory.increase();
-
 	MainChar.Set_Values(10, 1);
 	MainChar.MaxHP = 10;
 	MainChar.Score = 0;
@@ -356,17 +309,14 @@ int main()
 	system("cls");
 	startpoint();
 }
-
 //GameOver sequence
 int gameover()
 {
 	system("cls");
 	std::cin.clear();
 	Done = {};
-
 	std::cout << std::endl << "        Game over        " << std::endl << std::endl << std::endl;
 	system("pause");
-
 	std::cout << std::endl << "You did well, " << MainChar.Name << "." << std::endl
 
 		<< "Final stats" << std::endl
@@ -385,38 +335,30 @@ int gameover()
 			std::cout << "Invalid Input!" << std::endl << std::endl;
 			continue;
 		}
-
 		switch (_decision)
 		{
 		case 1:
-
 			system("color 07");
 			main();
 			Done = true;
-			
 			break;
 		case 2:
-
 			exit(0); //Closes app
-			
 			break;
 		default:
 			std::cout << std::endl << "Please decide..." << std::endl;
 		}
 	}
 }
-
 //START_POINT
 void startpoint()
 {
 	locator = START_POINT;
 	Inventory.reset();
-	 ThiefDefeated = false; 
-	 OldManDialogueDone = false;
-	 MapGiven = false; 
-	 optionalFights = false; //Resetting in case of gameover
-
-
+	ThiefDefeated = false; 
+	OldManDialogueDone = false;
+	MapGiven = false; 
+	optionalFights = false; //Resetting in case of gameover
 	MainChar.Set_Values(10, 1);
 	MainChar.MaxHP = 10;
 
@@ -429,22 +371,18 @@ void startpoint()
 		<< "5. Check your stats"<< std::endl << std::endl;
 	SwitchState();
 }
-
 //MOUNTAIN
 void mountain()
 {
 	system("cls");
 	locator = MOUNTAIN;
-
 	std::cout << "You have finally arrived on the side of the mountain" << std::endl
 		<< "You notice a unique object stuck in the rocks that is out of the ordinary" << std::endl
 		<< "Pick up?" << std::endl << std::endl
 		<< "1. Yes" << std::endl
 		<< "2. No" << std::endl << std::endl
 		<< "5. Check your stats" << std::endl << std::endl;;
-
 	std::cin.clear();
-
 	while (!Done)
 	{
 		if (!(std::cin >> _decision))
@@ -454,26 +392,19 @@ void mountain()
 			std::cout << "Invalid Input!" << std::endl << std::endl;
 			continue;
 		}
-
 		switch (_decision)
 		{
 		case 1:
 			system("cls");
-
 			for (size_t i = 0; i < 3; i++)
 			{
-
-
 				system("color 09");
 				std::cout << std::endl << "o==={==>====>==>" << std::endl
 					<< "You have found a sword!" << std::endl;
 				system("color 07");
-
 				system("cls");
 			}
-
 			system("color 07");
-
 			std::cout << std::endl << "o==={==>====>==>" << std::endl
 				<< "You have found a sword!" << std::endl;
 			system("color 07");
@@ -482,12 +413,10 @@ void mountain()
 			Inventory.increase();
 			system("pause");
 			Done = true;
-
 			break;
 		case 2:
 			system("cls");
 			std::cout << std::endl << "You have left the object untouched" << std::endl;
-
 			system("pause");
 			Done = true;
 			break;
@@ -498,14 +427,12 @@ void mountain()
 			std::cout << std::endl << "Please decide with" << std::endl
 				<< "1. Yes" << std::endl
 				<< "2. No" << std::endl;
-
 			Done = false;
 			break;
 		}
 	}
 	_decision = {}; //Reset the variables since I don't need them
 	Done = {};
-
 	system("cls");
 	if (Inventory.Sword == true)
 	{
@@ -515,23 +442,18 @@ void mountain()
 			<< "Gear weight increased! +" << Inventory.GearWeight << std::endl;
 		system("pause");
 	}
-
 	std::cout << std::endl << "You have heard an echo in the distance.." << std::endl
 		<< "You follow the road the echo came from regardless of the consequences" << std::endl;
-
 	system("pause");
 	system("cls");
 	std::cin.clear();
-
 	Game.MiniGame1(FirstMinigame); //MiniGame Session
 	if (FirstMinigame == false)
 	{
 		startpoint(); //Failed the minigame
 	}
-
 	crossroads();
 }
-
 //CAMP
 void camp()
 {
@@ -548,7 +470,6 @@ void camp()
 			std::cout << "Invalid Input!" << std::endl << std::endl;
 			continue;
 		}
-
 		if (_decision == 1)
 		{
 			Inventory.increase();
@@ -568,17 +489,13 @@ void camp()
 	system("cls");
 	crossroads();
 }
-
 //LAKE
 void lake()
 {
 	locator = LAKE;
-
 	std::cout <<std::endl<< "You arrive at a lake..." << std::endl;
-
 	system("pause");
 	system("cls");
-
 	std::cout << std::endl << "The center of the lake has a big chest, try to go towards it?" << std::endl
 		<<"1. Yes"<<std::endl << "2. No" << std::endl <<std::endl;
 	while (!Done)
@@ -590,7 +507,6 @@ void lake()
 			std::cout << "Invalid Input!" << std::endl << std::endl;
 			continue;
 		}
-
 		switch (_decision)
 		{
 			case 1:
@@ -613,14 +529,12 @@ void lake()
 		}
 	}
 }
-
 //CROSSROADS
 void crossroads()
 {
 	system("cls");
 	system("color 07");
 	locator = CROSSROADS;
-
 	if (ThiefDefeated == false)
 	{
 		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
@@ -647,7 +561,6 @@ void crossroads()
 			<< std::endl << "4. Towards Hideout"
 			<< std::endl << "5. Check stats" << std::endl << std::endl;
 	}
-
 	else if (ThiefDefeated == true)
 	{
 		std::cout << std::endl << "You have arrived in a field that has a cross-like shape, where do you wish to go?" << std::endl
@@ -655,16 +568,12 @@ void crossroads()
 			<< std::endl << "4. Towards Hideout"
 			<< std::endl << "5. Check stats" << std::endl << std::endl;
 	}
-
-
 	SwitchState();
 }
-
 //RIVER
 void river()
 {
 	locator = THIEFFIGHT; //Tells the fight(); function to initiate thief bossfight if true in 
-
 	//dialogue
 	std::cout << std::endl << "You approach the bank of a river, There seems to be a cave on the other side covered by logs and leaves.. " << std::endl;
 	system("pause");
@@ -673,10 +582,8 @@ void river()
 		      <<"???: Lets see how much Gold you got on you, shall we..?" << std::endl;
 	system("pause");
 	system("clear");
-
 	fight();
 }
-
 //HIDEOUT
 void hideout()
 {
@@ -723,33 +630,28 @@ void hideout()
 
 			}
 			break;
-
 			case 2:
 			{
 				std::cout << std::endl << "You have left the place without touching anything, who knows what could have been there.." << std::endl;
 				system("pause");
 				std::cout << std::endl << "Heading back to cross roads.." << std::endl;
-
 				system("pause");
 				system("cls");
 				crossroads();
 			}
 			break;
-
 			default:
 				std::cout << std::endl << "Please decide, (1 = Yes, 2 = No)" << std::endl << std::endl;
 				Done = false;
 				break;
 			}
-
 		}
 	}
 
 	else if (Inventory.Scroll == true)
 	{
 		std::cout << std::endl << "You're inside the thief's hideout, looks like there is nothing here, head back?" << std::endl
-			<< std::endl << "0. Go back to crossroads" << std::endl << std::endl;
-
+		<< std::endl << "0. Go back to crossroads" << std::endl << std::endl;
 		while (!Done)
 		{
 			if (!(std::cin >> _decision))
@@ -759,57 +661,38 @@ void hideout()
 				std::cout << "Invalid Input!" << std::endl << std::endl;
 				continue;
 			}
-
 			switch (_decision)
 			{
 			case 0:
-
 				crossroads();
-
 			default:
 				std::cout << std::endl << "Not a valid move" << std::endl;
 				break;
 			}
-
 		}
-
-	
 	}
 }
-
 //RUINS
 void ruins()
 {
 	locator = RUINS;
-
 	std::cout << std::endl << "You arrive at an ancient place filled with relics.." << std::endl;
-	
 	system("pause");
 	system("cls");
-	
 	std::cout << std::endl << "The Scroll from your inventory is radiating with a purple glow!" << std::endl;
-	
 	system("pause");
 	system("cls");
-	
 	std::cout << "The scroll has vanished and a door catacomb has revealed the MONSTER CAVE" << std::endl << std::endl;
-
 	stats(&Inventory);
-
 	system("pause");
 	system("cls");
-
 	system("color 0C");
-
 	std::cout << std::endl << "An ominous aura fills the place, Whenever you are ready.." << std::endl << std::endl
 		<< "1. Continue inside the MONSTER CAVE" << std::endl
 		<< "2. Go back and prepare" << std::endl << std::endl;
-
 	optionalFights = true; //Player can train in other areas.
-
 	SwitchState();
 }
-
 //TOWN
 void town()
 {
@@ -832,7 +715,6 @@ void town()
 				std::cout << "Invalid Input!" << std::endl << std::endl;
 				continue;
 			}
-
 			switch (_decision)
 			{
 			case 1:
@@ -857,38 +739,28 @@ void town()
 			<<"HP was at " << MainChar.HP << " and you have been healed back at " << MainChar.MaxHP << " !" <<std::endl;
 		MainChar.ResetHP();
 		system("pause");
-
-
 	}
 	else if (MapGiven == true)
 	{
 		system("cls");
-
 		std::cout << std::endl << "Old Man: Be careful out there.. " << MainChar.Name << std::endl << std::endl;
-
 		system("pause");
-
 		crossroads();
-
 	}
 	else if (ThiefDefeated == true && Inventory.Scroll == true)
 	{
 		std::cout << std::endl << "You approach the Old man in the empty town to seek answers for the mysterious scroll you have found" << std::endl << std::endl;
-
 		system("pause");
 		system("cls");
-
 		std::cout << std::endl << "Old Man: Oh hi there.. " << MainChar.Name << ", what brings you here today?" << std::endl
 			<< "Old Man: Oh...You found one of the relics I see, You can use it to open the gate in the RUINS..." << std::endl
 			<< "Old Man: I will also guide you with this here MAP...But be careful..There are strange things happening inside the cave..." << std::endl 
 			<< "Old Man: Also, Let me grant you some magical strength..." << std::endl << std::endl;
 		system("pause");
 		system("cls");
-
 		Inventory.Map = true;
 		Inventory.increase();
 		MapGiven = true;
-
 		MainChar.Score++;
 		MainChar.MaxHP += 10;
 		MainChar.DMG += 5;
@@ -899,10 +771,8 @@ void town()
 		std::cout << std::endl << "Old Man: Be useful please and find us the SCROLL we've been looking for.. " << std::endl;
 		system("pause");
 		system("cls");
-
 		std::cout << std::endl << "You heard the Old man and went back to cross-roads to look for what he is searching for..." << std::endl;
 		wait(2);
-
 		crossroads();
 	}
 	else if (ThiefDefeated == true)
@@ -930,7 +800,6 @@ void town()
 				std::cout << "Invalid Input!" << std::endl << std::endl;
 				continue;
 			}
-
 			switch (_decision)
 			{
 			case 1:
@@ -938,19 +807,14 @@ void town()
 				time(&final);
 				dif = difftime(final, init);
 				std::cout << std::endl << "Old Man: " << dif << " Years!!!!" << std::endl
-				<< std::endl << "Old Man: Now go be useful please and find us the SCROLL we've been looking for.. " << std::endl;
+					<< std::endl << "Old Man: Now go be useful please and find us the SCROLL we've been looking for.. " << std::endl;
 				system("pause");
 				system("cls");
-				
 				std::cout << std::endl << "You heard the Old man and went back to cross-roads to look for what he is searching for..." << std::endl;
-				
 				OldManDialogueDone = true; //To make sure this dialogue is not repeated if the player revisits
 				crossroads();
-				
-				
 			}
 			break;
-
 			case 2:
 			{
 				time(&final);
@@ -960,16 +824,11 @@ void town()
 					<< std::endl << "Old Man: Now go be useful please and find us the SCROLL we've been looking for.. " << std::endl;
 				system("pause");
 				system("cls");
-
 				std::cout << std::endl << "You heard the Old man and went back to cross-roads to look for what he is searching for..." << std::endl;
-
 				OldManDialogueDone = true; //To make sure this dialogue is not repeated if the player revisits
-				crossroads();;
-			
-			
+				crossroads();
 			}
 			break;
-
 			case 3:
 			{
 				time(&final);
@@ -978,12 +837,9 @@ void town()
 					<< std::endl << "Old Man: Now go be useful please and find us the SCROLL we've been looking for.. " << std::endl;
 				system("pause");
 				system("cls");
-
 				std::cout << std::endl << "You heard the Old man and went back to cross-roads to look for what he is searching for..." << std::endl;
-
 				OldManDialogueDone = true; //To make sure this dialogue is not repeated if the player revisits
 				crossroads();
-			
 			}
 			break;
 			default:
@@ -991,12 +847,10 @@ void town()
 				break;
 			}
 		}
-
 		OldManDialogueDone = true;
 	}
 	crossroads();
 }
-
 //MONSTER_CAVE
 void monstercave()
 {
@@ -1007,14 +861,11 @@ void monstercave()
 	{
 		ruins();
 	}
-
 	Inventory.Scroll = false;
 	Inventory.decrease();
-
 	std::cout << std::endl << "You encounter a strange monster!" << std::endl;
 	fight();
 }
-
 //WATERFALL
 void waterfall()
 {
@@ -1032,7 +883,6 @@ void waterfall()
 	std::cout << std::endl << "!!!" << std::endl;
 	wait(1);
 	system("cls");
-
 	std::cout << std::endl << "???: Wake up " << MainChar.Name << ", we have arrived.." << std::endl << std::endl;
 	wait(3);
 	system("cls");
@@ -1048,27 +898,22 @@ void waterfall()
 	system("cls");
 	std::cout << "Old Man: Let's get to Jason's inn, I doubt the sun comes out soon, better avoid another Monster invasion" << std::endl;
 	system("pause");
-	
 	system("cls");
 	wait(3);
 	system("color 03");
-
 	std::cout << "             [         Developed by Stefanos Triantafyllidis          ]                   " << std::endl<<std::endl<<std::endl;
 	wait(5);
 	stats(&Inventory);
-
 	std::cout << std::endl << std::endl << "Final score: " << MainChar.Score << std::endl;
 	system("pause");
 	system("exit");
 }
-
 //VOLCANO (Optional bossfight with random heal regen twist)
 void volcano()
 {
 	locator = VOLCANO;
 	system("cls");
 	system("color 84");
-
 	//dialogue
 	std::cout << std::endl << "You have revisited the mountain, Now with your newfound magical powers from the Old Man in Town you can climb your way to the top.." << std::endl;
 	wait(5);
@@ -1078,15 +923,12 @@ void volcano()
 	system("cls");
 	fight();
 }
-
 //CASTLE (Optional bossfight with random heal regen twist and random critical chance)
 void castle()
 {
-
 	locator = CASTLE;
 	system("cls");
 	system("color 06"); //Using this colour throughout the fight to indicate that is different from the others
-
 	//dialogue
 	std::cout << std::endl << "You begin to get through the Town, You notice a huge castle entrance opposite the plaza..." << std::endl;
 	wait(5);
@@ -1096,11 +938,8 @@ void castle()
 	std::cout << std::endl << "!!!" << std::endl;
 	wait(1);
 	system("cls");
-
-
 	fight();
 }
-
 void fight()
 {
 	std::cin.clear();
@@ -1114,11 +953,9 @@ void fight()
 		int _counter = 0;
 		while (_counter < 2 && MainChar.HP > 0) //Counter used to determine if BOTH enemies are defeated
 		{
-
 			std::cin.clear();
 			system("cls");
 			system("color 0C");
-
 			std::cout << std::endl << "You are being attacked by " << StrangeMonster1.Name << " and " << StrangeMonster2.Name << std::endl << std::endl
 				<< StrangeMonster1.Name << " has" << StrangeMonster1.HP << "  HP" << std::endl
 				<< StrangeMonster2.Name << " has" << StrangeMonster2.HP << "  HP" << std::endl << std::endl
@@ -1128,9 +965,7 @@ void fight()
 				<< "2. Try to Talk to them?" << std::endl
 				<< "4. RUN" << std::endl
 				<< "5. Check stats" << std::endl << std::endl;
-
 			// Player Choice
-
 			std::cin.clear();
 			if (!(std::cin >> _decision))
 			{
@@ -1158,7 +993,6 @@ void fight()
 					std::cout << "1. " << StrangeMonster1.Name << " " << StrangeMonster1.HP << " HP" << std::endl
 						<< "2. " << StrangeMonster2.Name << " " << StrangeMonster2.HP << " HP" << std::endl << std::endl;
 				}
-
 				if (!(std::cin >> _decision))
 				{
 					std::cin.clear();
@@ -1166,14 +1000,12 @@ void fight()
 					std::cout << "Invalid Input!" << std::endl << std::endl;
 					continue;
 				}
-
 				//If Target 1 is Alive
 				if (_decision == 1 && StrangeMonster1.HP > 0)
 				{
 					StrangeMonster1.HP -= MainChar.DMG;
 					std::cout << std::endl << "You dealt " << MainChar.DMG << " Damage to " << StrangeMonster1.Name << "!" << std::endl << std::endl;
 					system("pause");
-
 				}
 				//If Target 1 is Down
 				else if (_decision == 1 && StrangeMonster1.HP <= 0)
@@ -1187,15 +1019,12 @@ void fight()
 					StrangeMonster2.HP -= MainChar.DMG;
 					std::cout << std::endl << "You dealt " << MainChar.DMG << " Damage to " << StrangeMonster2.Name << "!" << std::endl << std::endl;
 					system("pause");
-
 				}
 				//If Target 2 is Down
 				else if (_decision == 2 && StrangeMonster2.HP <= 0)
 				{
 					std::cout << std::endl << "The Target has already been defeated, choose your turns wisely!" << std::endl;
 				}
-
-
 			}
 			else if (_decision == 2)
 			{
@@ -1207,24 +1036,19 @@ void fight()
 			else if (_decision == 4)
 			{
 				std::cout << "You run out of Monster Cave!" << std::endl;
-
 				crossroads();
 			}
-
 			else if (_decision == 5)
 			{
 				stats(&Inventory);
 			}
-
 			if (StrangeMonster1.HP <= 0 && StrangeMonster2.HP <= 0)
 			{
 				_counter = 2;
 			}
-
 			//Damage Step
 			if (StrangeMonster1.HP <= 0)
 			{
-
 				MainChar.HP -= StrangeMonster2.DMG;
 				std::cout << std::endl << StrangeMonster2.Name << " Has attacked you for " << StrangeMonster2.DMG << " Damage" << std::endl << std::endl;
 			}
@@ -1232,30 +1056,23 @@ void fight()
 			{
 				MainChar.HP -= StrangeMonster1.DMG;
 				std::cout << std::endl << StrangeMonster1.Name << " Has attacked you for " << StrangeMonster1.DMG << " Damage" << std::endl << std::endl;
-
 			}
 			else if (StrangeMonster1.HP > 0 && StrangeMonster2.HP > 0)
 			{
 				MainChar.HP -= StrangeMonster1.DMG;
 				MainChar.HP -= StrangeMonster2.DMG;
-
 				std::cout << std::endl << StrangeMonster1.Name << " Has attacked you for " << StrangeMonster1.DMG << " Damage" << std::endl << std::endl;
 				std::cout << std::endl << StrangeMonster2.Name << " Has attacked you for " << StrangeMonster2.DMG << " Damage" << std::endl << std::endl;
 			}
 			system("pause");
-
-
 		}
 		if (MainChar.HP <= 0)
 		{
 			gameover();
 		}
-
 		std::cout << std::endl << "You have defeated " << StrangeMonster1.Name << " and " << StrangeMonster2.Name << std::endl << std::endl;
 		MainChar.Score += 10;
-
 		system("pause");
-
 		waterfall();
 	}
 	if (locator == LAKEMONSTER)
@@ -1263,12 +1080,9 @@ void fight()
 		system("color 0B");
 		SwampMonster.Set_Values(100, 2);
 		SwampMonster.SetName("Swamp Monster");
-
 		while (SwampMonster.HP > 0 && MainChar.HP > 0)
 		{
 			system("cls");
-
-
 			std::cout << std::endl << "You are being ambushed by a " << SwampMonster.Name << "!" << std::endl << std::endl
 				<< "The " << SwampMonster.Name << " has " << SwampMonster.HP << " HP" << std::endl << std::endl
 				<< "You have " << MainChar.HP << " HP" << std::endl << std::endl
@@ -1285,23 +1099,17 @@ void fight()
 			{
 				SwampMonster.HP -= MainChar.DMG;
 				std::cout << std::endl << "You attack the " << SwampMonster.Name << " with " << MainChar.DMG << " Damage!" << std::endl;
-
 			}
-
 			MainChar.HP -= SwampMonster.DMG;
-
 			std::cout << SwampMonster.Name << " attacks with " << SwampMonster.DMG << std::endl;
 			system("pause");
-
 		}
 		if (MainChar.HP <= 0) //Gameover if Character is dead
 		{
 			gameover();
 		}
-
 		MainChar.Score += 10;
 		smdone = true;
-
 		std::cout << std::endl << "The monster begins to disappear in the mists as it falls in the lake" << std::endl;
 		wait(3);
 		std::cout << std::endl << "You gain experience from this fight" << std::endl << std::endl;
@@ -1311,7 +1119,6 @@ void fight()
 		std::cout << std::endl << "HP increased to " << MainChar.HP << "!" << std::endl << std::endl;
 		system("pause");
 		MainChar.ResetHP();
-
 		crossroads();
 	}
 	if (locator == THIEFFIGHT)
@@ -1319,12 +1126,9 @@ void fight()
 		//Thief in River
 		Thief.Set_Values(10, 3);
 		Thief.SetName("Thief");
-
 		while (Thief.HP > 0 && MainChar.HP > 0) //Winning condition
 		{
 			system("cls");
-
-
 			std::cout << std::endl << "You're being ambushed by a " << Thief.Name << "!" << std::endl << std::endl
 				<< "The thief has " << Thief.HP << " HP" << std::endl << std::endl
 				<< "You have " << MainChar.HP << " HP" << std::endl << std::endl
@@ -1343,7 +1147,6 @@ void fight()
 			{
 				Thief.HP -= MainChar.DMG;
 				std::cout << std::endl << "You attack the " << Thief.Name << " with " << MainChar.DMG << " Damage!" << std::endl;
-
 			}
 			else if (_decision == 2)
 			{
@@ -1351,7 +1154,6 @@ void fight()
 				std::cout << std::endl << "Which item do you wish to use?" << std::endl
 					<< "1. Torch" << std::endl
 					<< "2. Cancel (Skips your turn)" << std::endl << std::endl;
-
 				if (!(std::cin >> _decision))
 				{
 					std::cin.clear();
@@ -1359,9 +1161,7 @@ void fight()
 					std::cout << "Invalid Input!" << std::endl << std::endl;
 					continue;
 				}
-
 				Done = {};
-
 				switch (_decision)
 				{
 				case 1:
@@ -1410,10 +1210,8 @@ void fight()
 		MainChar.Score += 5;
 
 		MainChar.DMG += 2;
-		MainChar.MaxHP +=8;
-
+		MainChar.MaxHP += 8;
 		MainChar.ResetHP();
-	
 		std::cout << "You have defeated the thief!" << std::endl << std::endl
 			<< "You gained experience from this fight!" << std::endl
 			<< "You can deal " << MainChar.DMG << " Damage now!" << std::endl
@@ -1429,24 +1227,19 @@ void fight()
 		VDM.SetName("Volcanic Demolisher");
 		VDM.Set_Values(50, 10);
 		VDM.MaxHP = 50;
-
 		std::cout << std::endl << "You exncounter a collosal monster the size of the crater at the center of the volcano!" << std::endl;
 		wait(3);
 		std::cout << std::endl << "The giant demon grabs his axe and is ready to fight you.." << std::endl;
 		system("pause");
-
 		while (MainChar.HP >= 0 && VDM.HP >= 0)
 		{
 			system("cls");
-
-
 			std::cout << std::endl << "You are fighting against " << VDM.Name << "!" << std::endl << std::endl
 				<< "The " << VDM.Name << " has " << VDM.HP << " HP" << std::endl << std::endl
 				<< "You have " << MainChar.HP << " HP" << std::endl << std::endl
 				<< "What do you do?" << std::endl
 				<< "1. Attack" << std::endl
 				<< "2. Rest" << std::endl << std::endl;
-
 			//Player choices and actions
 			if (!(std::cin >> _decision))
 			{
@@ -1469,9 +1262,7 @@ void fight()
 				std::cout << std::endl << "You attempt to catch your breath for a moment and restore " << _heal << " HP";
 				_heal += MainChar.HP;
 				wait(3);
-
 			}
-
 			//This Optional bossfight regens HP randomly
 			if (VDM.HP < VDM.MaxHP)
 			{
@@ -1481,29 +1272,22 @@ void fight()
 				{
 					std::cout << std::endl << VDM.Name << " Has merged with the volcanic magma and restored " << _heal << " HP" << std::endl;
 					_heal += VDM.HP;
-
 				}
 			}
-
 			std::cout << std::endl << "The " << VDM.Name << " has striked with " << VDM.DMG << " Damage!" << std::endl;
 			MainChar.HP -= VDM.DMG;
 			system("pause");
-
 		}
-
 		if (MainChar.HP <= 0)
 		{
 			gameover();
 		}
-
 		vdmdone = true;
-
 		std::cout << std::endl << "The Demon gets melted into the volcano" << std::endl;
 		wait(3);
 		std::cout << std::endl << "You gain experience from this fight" << std::endl << std::endl;
 		MainChar.MaxHP += 10;
 		MainChar.DMG += 5;
-
 		std::cout << std::endl << "Damage increased to " << MainChar.DMG << "!" << std::endl;
 		std::cout << std::endl << "HP increased to " << MainChar.HP << "!" << std::endl << std::endl;
 		system("pause");
@@ -1516,20 +1300,15 @@ void fight()
 		int _heal = 0;
 		int _crit = 0;
 		int _combined = 0;
-
 		Entity NK;
 		NK.SetName("Night Knight");
 		NK.Set_Values(65, 10);
 		NK.MaxHP = 65;
-
 		std::cout << std::endl << "Looks like " << NK.Name << " is frustrated and ready to fight" << std::endl;
 		system("pause");
-
 		while (MainChar.HP >= 0 && NK.HP >= 0)
 		{
 			system("cls");
-
-
 			std::cout << std::endl << "You are fighting against " << NK.Name << "!" << std::endl << std::endl
 				<< "The " << NK.Name << " has " << NK.HP << " HP" << std::endl << std::endl
 				<< "You have " << MainChar.HP << " HP" << std::endl << std::endl
@@ -1537,7 +1316,6 @@ void fight()
 				<< "1. Attack" << std::endl
 				<< "2. Rest" << std::endl
 				<< "3. Charged Attack" << std::endl;
-
 			//Player choices and actions
 			if (!(std::cin >> _decision))
 			{
@@ -1567,13 +1345,11 @@ void fight()
 				_crit = rand() % 10 + 1;
 				_combined = _crit + MainChar.DMG;
 
-
 				std::cout << std::endl << "Using sheer force you attempt to use all of your energy. You deal " << _combined << " Damage and lose 3 HP" << std::endl;
 				system("pause");
 
 				NK.HP -= _combined;
 			}
-
 			//This Optional bossfight regens HP randomly
 			if (NK.HP < NK.MaxHP)
 			{
@@ -1583,36 +1359,27 @@ void fight()
 				{
 					std::cout << std::endl << NK.Name << " Has attempted to take a breather and restored " << _heal << " HP" << std::endl;
 					_heal += NK.HP;
-
 				}
 			}
-
 			srand((int)time(0));
 			_crit = rand() % 10 + 1;
-
 			_combined = _crit + NK.DMG;
-
 			if (_crit >= 5)
 			{
 				std::cout << std::endl << "The " << NK.Name << " has forcefully striked with " << _combined << " Damage!" << std::endl;
 				MainChar.HP -= _combined;
 				system("pause");
 			}
-
 			else if(_crit < 5)
 			{
 				std::cout << std::endl << "The " << NK.Name << " has striked with " << NK.DMG << " Damage!" << std::endl;
 			}
-
 		}
-
 		if (MainChar.HP <= 0)
 		{
 			gameover();
 		}
-
 		nkdone = true;
-
 		std::cout << std::endl << "You notice that the armor was hollow all along!" << std::endl;
 		wait(3);
 		std::cout << std::endl << "You gain experience from this fight" << std::endl << std::endl;
@@ -1624,7 +1391,5 @@ void fight()
 		std::cout << std::endl << "Make sure you heal later in town!" << std::endl << std::endl;
 		system("pause");
 		crossroads();
-
-
 	}
 }
